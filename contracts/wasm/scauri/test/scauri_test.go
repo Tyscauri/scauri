@@ -6,7 +6,7 @@ package test
 import (
 	"testing"
 
-	"contracts/wasm/scauri/go/scauri"
+	"github.com/tyscauri/scauri/contracts/wasm/scauri/go/scauri"
 	"github.com/iotaledger/wasp/packages/wasmvm/wasmsolo"
 	"github.com/stretchr/testify/require"
 )
