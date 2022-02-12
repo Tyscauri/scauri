@@ -1,4 +1,4 @@
-module github.com/tyscauri/scauri
+module github.com/iotaledger/wasp
 
 go 1.16
 

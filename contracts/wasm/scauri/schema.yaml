@@ -1,7 +1,6 @@
 name: scauri
 description: scauri description
-events:
-  payout:
+events: {}
 structs:
   ProductPass:
     id: Hash

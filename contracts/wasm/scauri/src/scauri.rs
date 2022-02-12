@@ -77,7 +77,9 @@ pub fn func_create_pp(ctx: &ScFuncContext, f: &CreatePPContext) {
 
     };
     
-    let requiredToken = &ppNew.charge_weight * f.state.price_per_mg().value();
+    let mut requiredToken = &ppNew.charge_weight * f.state.price_per_mg().value();
+    requiredToken = 10; //just for testing, delete later
+
     if &ppNew.amount_per_charge < &requiredToken {
         ctx.panic(&format!("Charge does not provide sufficient token. '{tokens}'are required", tokens=requiredToken.to_string()));
     }

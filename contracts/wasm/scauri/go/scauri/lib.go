@@ -57,7 +57,6 @@ func OnLoad(index int32) {
 }
 
 type AddPPToFractionContext struct {
-	Events  scauriEvents
 	Params  ImmutableAddPPToFractionParams
 	Results MutableAddPPToFractionResults
 	State   MutablescauriState
@@ -85,7 +84,6 @@ func funcAddPPToFractionThunk(ctx wasmlib.ScFuncContext) {
 }
 
 type CreateFractionContext struct {
-	Events  scauriEvents
 	Params  ImmutableCreateFractionParams
 	Results MutableCreateFractionResults
 	State   MutablescauriState
@@ -112,7 +110,6 @@ func funcCreateFractionThunk(ctx wasmlib.ScFuncContext) {
 }
 
 type CreatePPContext struct {
-	Events  scauriEvents
 	Params  ImmutableCreatePPParams
 	Results MutableCreatePPResults
 	State   MutablescauriState
@@ -141,7 +138,6 @@ func funcCreatePPThunk(ctx wasmlib.ScFuncContext) {
 }
 
 type CreateRecyclateContext struct {
-	Events  scauriEvents
 	Params  ImmutableCreateRecyclateParams
 	Results MutableCreateRecyclateResults
 	State   MutablescauriState
@@ -168,7 +164,6 @@ func funcCreateRecyclateThunk(ctx wasmlib.ScFuncContext) {
 }
 
 type DeletePPContext struct {
-	Events  scauriEvents
 	Params  ImmutableDeletePPParams
 	Results MutableDeletePPResults
 	State   MutablescauriState
@@ -195,7 +190,6 @@ func funcDeletePPThunk(ctx wasmlib.ScFuncContext) {
 }
 
 type InitContext struct {
-	Events  scauriEvents
 	Params  ImmutableInitParams
 	State   MutablescauriState
 }
@@ -215,7 +209,6 @@ func funcInitThunk(ctx wasmlib.ScFuncContext) {
 }
 
 type PayoutProducerContext struct {
-	Events  scauriEvents
 	Params  ImmutablePayoutProducerParams
 	State   MutablescauriState
 }
@@ -236,7 +229,6 @@ func funcPayoutProducerThunk(ctx wasmlib.ScFuncContext) {
 }
 
 type SetMaterialsContext struct {
-	Events  scauriEvents
 	Params  ImmutableSetMaterialsParams
 	State   MutablescauriState
 }
@@ -257,7 +249,6 @@ func funcSetMaterialsThunk(ctx wasmlib.ScFuncContext) {
 }
 
 type SetOwnerContext struct {
-	Events  scauriEvents
 	Params  ImmutableSetOwnerParams
 	State   MutablescauriState
 }

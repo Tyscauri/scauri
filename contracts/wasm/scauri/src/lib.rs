@@ -12,7 +12,6 @@ use scauri::*;
 use wasmlib::*;
 
 use crate::consts::*;
-use crate::events::*;
 use crate::params::*;
 use crate::results::*;
 use crate::state::*;
@@ -21,7 +20,6 @@ use crate::typedefs::*;
 
 mod consts;
 mod contract;
-mod events;
 mod params;
 mod results;
 mod state;
@@ -78,7 +76,6 @@ fn on_load() {
 }
 
 pub struct AddPPToFractionContext {
-	events:  scauriEvents,
 	params: ImmutableAddPPToFractionParams,
 	results: MutableAddPPToFractionResults,
 	state: MutablescauriState,
@@ -87,7 +84,6 @@ pub struct AddPPToFractionContext {
 fn func_add_pp_to_fraction_thunk(ctx: &ScFuncContext) {
 	ctx.log("scauri.funcAddPPToFraction");
 	let f = AddPPToFractionContext {
-		events:  scauriEvents {},
 		params: ImmutableAddPPToFractionParams { proxy: params_proxy() },
 		results: MutableAddPPToFractionResults { proxy: results_proxy() },
 		state: MutablescauriState { proxy: state_proxy() },
@@ -100,7 +96,6 @@ fn func_add_pp_to_fraction_thunk(ctx: &ScFuncContext) {
 }
 
 pub struct CreateFractionContext {
-	events:  scauriEvents,
 	params: ImmutableCreateFractionParams,
 	results: MutableCreateFractionResults,
 	state: MutablescauriState,
@@ -109,7 +104,6 @@ pub struct CreateFractionContext {
 fn func_create_fraction_thunk(ctx: &ScFuncContext) {
 	ctx.log("scauri.funcCreateFraction");
 	let f = CreateFractionContext {
-		events:  scauriEvents {},
 		params: ImmutableCreateFractionParams { proxy: params_proxy() },
 		results: MutableCreateFractionResults { proxy: results_proxy() },
 		state: MutablescauriState { proxy: state_proxy() },
@@ -121,7 +115,6 @@ fn func_create_fraction_thunk(ctx: &ScFuncContext) {
 }
 
 pub struct CreatePPContext {
-	events:  scauriEvents,
 	params: ImmutableCreatePPParams,
 	results: MutableCreatePPResults,
 	state: MutablescauriState,
@@ -130,7 +123,6 @@ pub struct CreatePPContext {
 fn func_create_pp_thunk(ctx: &ScFuncContext) {
 	ctx.log("scauri.funcCreatePP");
 	let f = CreatePPContext {
-		events:  scauriEvents {},
 		params: ImmutableCreatePPParams { proxy: params_proxy() },
 		results: MutableCreatePPResults { proxy: results_proxy() },
 		state: MutablescauriState { proxy: state_proxy() },
@@ -144,7 +136,6 @@ fn func_create_pp_thunk(ctx: &ScFuncContext) {
 }
 
 pub struct CreateRecyclateContext {
-	events:  scauriEvents,
 	params: ImmutableCreateRecyclateParams,
 	results: MutableCreateRecyclateResults,
 	state: MutablescauriState,
@@ -153,7 +144,6 @@ pub struct CreateRecyclateContext {
 fn func_create_recyclate_thunk(ctx: &ScFuncContext) {
 	ctx.log("scauri.funcCreateRecyclate");
 	let f = CreateRecyclateContext {
-		events:  scauriEvents {},
 		params: ImmutableCreateRecyclateParams { proxy: params_proxy() },
 		results: MutableCreateRecyclateResults { proxy: results_proxy() },
 		state: MutablescauriState { proxy: state_proxy() },
@@ -165,7 +155,6 @@ fn func_create_recyclate_thunk(ctx: &ScFuncContext) {
 }
 
 pub struct DeletePPContext {
-	events:  scauriEvents,
 	params: ImmutableDeletePPParams,
 	results: MutableDeletePPResults,
 	state: MutablescauriState,
@@ -174,7 +163,6 @@ pub struct DeletePPContext {
 fn func_delete_pp_thunk(ctx: &ScFuncContext) {
 	ctx.log("scauri.funcDeletePP");
 	let f = DeletePPContext {
-		events:  scauriEvents {},
 		params: ImmutableDeletePPParams { proxy: params_proxy() },
 		results: MutableDeletePPResults { proxy: results_proxy() },
 		state: MutablescauriState { proxy: state_proxy() },
@@ -186,7 +174,6 @@ fn func_delete_pp_thunk(ctx: &ScFuncContext) {
 }
 
 pub struct InitContext {
-	events:  scauriEvents,
 	params: ImmutableInitParams,
 	state: MutablescauriState,
 }
@@ -194,7 +181,6 @@ pub struct InitContext {
 fn func_init_thunk(ctx: &ScFuncContext) {
 	ctx.log("scauri.funcInit");
 	let f = InitContext {
-		events:  scauriEvents {},
 		params: ImmutableInitParams { proxy: params_proxy() },
 		state: MutablescauriState { proxy: state_proxy() },
 	};
@@ -203,7 +189,6 @@ fn func_init_thunk(ctx: &ScFuncContext) {
 }
 
 pub struct PayoutProducerContext {
-	events:  scauriEvents,
 	params: ImmutablePayoutProducerParams,
 	state: MutablescauriState,
 }
@@ -211,7 +196,6 @@ pub struct PayoutProducerContext {
 fn func_payout_producer_thunk(ctx: &ScFuncContext) {
 	ctx.log("scauri.funcPayoutProducer");
 	let f = PayoutProducerContext {
-		events:  scauriEvents {},
 		params: ImmutablePayoutProducerParams { proxy: params_proxy() },
 		state: MutablescauriState { proxy: state_proxy() },
 	};
@@ -221,7 +205,6 @@ fn func_payout_producer_thunk(ctx: &ScFuncContext) {
 }
 
 pub struct SetMaterialsContext {
-	events:  scauriEvents,
 	params: ImmutableSetMaterialsParams,
 	state: MutablescauriState,
 }
@@ -229,7 +212,6 @@ pub struct SetMaterialsContext {
 fn func_set_materials_thunk(ctx: &ScFuncContext) {
 	ctx.log("scauri.funcSetMaterials");
 	let f = SetMaterialsContext {
-		events:  scauriEvents {},
 		params: ImmutableSetMaterialsParams { proxy: params_proxy() },
 		state: MutablescauriState { proxy: state_proxy() },
 	};
@@ -239,7 +221,6 @@ fn func_set_materials_thunk(ctx: &ScFuncContext) {
 }
 
 pub struct SetOwnerContext {
-	events:  scauriEvents,
 	params: ImmutableSetOwnerParams,
 	state: MutablescauriState,
 }
@@ -247,7 +228,6 @@ pub struct SetOwnerContext {
 fn func_set_owner_thunk(ctx: &ScFuncContext) {
 	ctx.log("scauri.funcSetOwner");
 	let f = SetOwnerContext {
-		events:  scauriEvents {},
 		params: ImmutableSetOwnerParams { proxy: params_proxy() },
 		state: MutablescauriState { proxy: state_proxy() },
 	};
