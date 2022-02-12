@@ -3,6 +3,8 @@
 
 [workspace]
 members = [
+    "circularity",
+    "scauri",
     "dividend",
     "donatewithfeedback",
     "erc20",
