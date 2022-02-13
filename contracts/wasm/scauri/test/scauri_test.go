@@ -36,20 +36,20 @@ func TestCreateAndGetPP(t * testing.T) {
 	createPP.Params.Purpose().SetValue("Food")
 	createPP.Params.ExpiryDate().SetValue(uint64(time.Now().Unix()))
 	createPP.Func.TransferIotas(10).Post()
-	//id1:= createPP.Results.Id();
+	var id1 = createPP.Results.Id().Value();
 
 
-	var array [10]wasmtypes.ScImmutableHash
+	var keys [10]wasmtypes.ScHash
 
-	for i := 0; i < len(array); i++ {
+	for i := 0; i < len(keys); i++ {
 
 		createPP:= scauri.ScFuncs.CreatePP(ctx.Sign(ctx.NewSoloAgent())) 	//for funcs
 		createPP.Params.Name().SetValue("tetrapack" + fmt.Sprint(i))
 		createPP.Params.Purpose().SetValue("Food")
 		createPP.Params.ExpiryDate().SetValue(uint64(time.Now().Unix()))
 		createPP.Func.TransferIotas(10).Post()
-		id:= createPP.Results.Id()
-		array[i] = id
+		id:= createPP.Results.Id().Value()
+		keys[i] = id
 		fmt.Println("id: " + fmt.Sprint(id));
     }
 
@@ -57,15 +57,43 @@ func TestCreateAndGetPP(t * testing.T) {
 	fmt.Println("total duration: " + fmt.Sprint(end_time - start_time))
 
 	require.NoError(t, ctx.Err)
-	/*
-	composition:= "bla"
+	
+	//var exampleComposition[3]scauri.Composition
 
+
+
+	var composition *scauri.Composition
+	composition = new(scauri.Composition) 
+	composition.Material = "PP"
+	composition.Proportion = 5
+
+	setMaterial:= scauri.ScFuncs.SetMaterials(ctx.Sign(ctx.NewSoloAgent()))
+	setMaterial.Params.Id().SetValue(id1)
+	setMaterial.Params.Comp().AppendComposition().SetValue(composition)
+	setMaterial.Func.Call()
+
+	
 	setMaterials:= scauri.ScFuncs.SetMaterials(ctx.Sign(ctx.NewSoloAgent()))
-	setMaterials.Params.Id().SetValue(wasmtypes.ScHash(id1))
-	setMaterials.Params.Comp().SetValue(composition)
-	setMaterials.Func.Call()
-	*/
+	for k:= 0; k < len(keys); k++ {
+		setMaterials.Params.Id().SetValue(keys[k])
 
+		for i:= 0; i < 3; i++ {
+			setMaterials.Params.Comp().AppendComposition().SetValue(composition)
+	
+		}
+	}
+	setMaterials.Func.Call()
+
+	for k:= 0; k < len(keys); k++ {
+		getMat1 := scauri.ScFuncs.GetMaterials(ctx)
+		getMat1.Params.Id().SetValue(keys[k])
+		getMat1.Func.Call()
+		require.NoError(t, ctx.Err)
+		require.EqualValues(t, "PP", getMat1.Results.Compositions().GetComposition(0).Value().Material)
+		require.EqualValues(t, 5, getMat1.Results.Compositions().GetComposition(0).Value().Proportion)
+		//require.EqualValues(t, "PE", getMat1.Results.Compositions().GetComposition(1).Value().Material)
+		//require.EqualValues(t, 40, getMat1.Results.Compositions().GetComposition(1).Value().Proportion)
+	}
 
 
 	/*

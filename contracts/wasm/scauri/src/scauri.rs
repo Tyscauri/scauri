@@ -128,7 +128,7 @@ pub fn view_get_materials(ctx: &ScViewContext, f: &GetMaterialsContext) {
     let composition_results_proxy = f.results.compositions();
     
     for i in 0..comp.length() {
-        composition_results_proxy.get_composition(i).set_value(&comp.get_composition(i).value());
+        composition_results_proxy.append_composition().set_value(&comp.get_composition(i).value());
     }
     
 }
@@ -279,7 +279,7 @@ pub fn func_create_recyclate(ctx: &ScFuncContext, f: &CreateRecyclateContext) {
             material: mat,
             weight: wei
         };
-        newRecyCompProxy.get_recy_composition(i).set_value(&recyComp);
+        newRecyCompProxy.append_recy_composition().set_value(&recyComp);
     }
     
     //manage payouts
