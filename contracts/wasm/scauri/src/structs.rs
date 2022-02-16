@@ -221,6 +221,7 @@ pub struct ProductPass {
     pub packages_sorted             : u64, 
     pub packages_wrong_sorted       : u64, 
     pub purpose                     : String,  //e.g. food, hygiene, others
+    pub recyclate_share             : u8, 
     pub reward_per_package_producer : u64, 
     pub reward_per_package_recycler : u64, 
     pub total_packages              : u64, 
@@ -245,6 +246,7 @@ impl ProductPass {
             packages_sorted             : uint64_decode(&mut dec),
             packages_wrong_sorted       : uint64_decode(&mut dec),
             purpose                     : string_decode(&mut dec),
+            recyclate_share             : uint8_decode(&mut dec),
             reward_per_package_producer : uint64_decode(&mut dec),
             reward_per_package_recycler : uint64_decode(&mut dec),
             total_packages              : uint64_decode(&mut dec),
@@ -268,6 +270,7 @@ impl ProductPass {
 		uint64_encode(&mut enc, self.packages_sorted);
 		uint64_encode(&mut enc, self.packages_wrong_sorted);
 		string_encode(&mut enc, &self.purpose);
+		uint8_encode(&mut enc, self.recyclate_share);
 		uint64_encode(&mut enc, self.reward_per_package_producer);
 		uint64_encode(&mut enc, self.reward_per_package_recycler);
 		uint64_encode(&mut enc, self.total_packages);

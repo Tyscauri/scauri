@@ -132,6 +132,7 @@ func funcCreatePPThunk(ctx wasmlib.ScFuncContext) {
 	ctx.Require(f.Params.ExpiryDate().Exists(), "missing mandatory expiryDate")
 	ctx.Require(f.Params.Name().Exists(), "missing mandatory name")
 	ctx.Require(f.Params.Purpose().Exists(), "missing mandatory purpose")
+	ctx.Require(f.Params.RecyclateShare().Exists(), "missing mandatory recyclateShare")
 	funcCreatePP(ctx, f)
 	ctx.Results(results)
 	ctx.Log("scauri.funcCreatePP ok")

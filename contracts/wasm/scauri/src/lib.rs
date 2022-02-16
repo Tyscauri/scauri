@@ -130,6 +130,7 @@ fn func_create_pp_thunk(ctx: &ScFuncContext) {
 	ctx.require(f.params.expiry_date().exists(), "missing mandatory expiryDate");
 	ctx.require(f.params.name().exists(), "missing mandatory name");
 	ctx.require(f.params.purpose().exists(), "missing mandatory purpose");
+	ctx.require(f.params.recyclate_share().exists(), "missing mandatory recyclateShare");
 	func_create_pp(ctx, &f);
 	ctx.results(&f.results.proxy.kv_store);
 	ctx.log("scauri.funcCreatePP ok");

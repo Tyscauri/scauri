@@ -13,16 +13,17 @@ pub const SC_NAME        : &str = "scauri";
 pub const SC_DESCRIPTION : &str = "scauri description";
 pub const HSC_NAME       : ScHname = ScHname(0x5559a7fd);
 
-pub const PARAM_CHARGE_WEIGHT : &str = "chargeWeight";
-pub const PARAM_COMP          : &str = "comp";
-pub const PARAM_EXPIRY_DATE   : &str = "expiryDate";
-pub const PARAM_FRAC_ID       : &str = "fracID";
-pub const PARAM_ID            : &str = "id";
-pub const PARAM_NAME          : &str = "name";
-pub const PARAM_OWNER         : &str = "owner";
-pub const PARAM_PP_ID         : &str = "ppID";
-pub const PARAM_PROD_PASS     : &str = "prodPass";
-pub const PARAM_PURPOSE       : &str = "purpose";
+pub const PARAM_CHARGE_WEIGHT   : &str = "chargeWeight";
+pub const PARAM_COMP            : &str = "comp";
+pub const PARAM_EXPIRY_DATE     : &str = "expiryDate";
+pub const PARAM_FRAC_ID         : &str = "fracID";
+pub const PARAM_ID              : &str = "id";
+pub const PARAM_NAME            : &str = "name";
+pub const PARAM_OWNER           : &str = "owner";
+pub const PARAM_PP_ID           : &str = "ppID";
+pub const PARAM_PROD_PASS       : &str = "prodPass";
+pub const PARAM_PURPOSE         : &str = "purpose";
+pub const PARAM_RECYCLATE_SHARE : &str = "recyclateShare";
 
 pub const RESULT_COMPOSITIONS      : &str = "compositions";
 pub const RESULT_FRAC_ID           : &str = "fracID";

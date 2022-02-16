@@ -73,6 +73,10 @@ func (s ImmutableCreatePPParams) Purpose() wasmtypes.ScImmutableString {
 	return wasmtypes.NewScImmutableString(s.proxy.Root(ParamPurpose))
 }
 
+func (s ImmutableCreatePPParams) RecyclateShare() wasmtypes.ScImmutableUint8 {
+	return wasmtypes.NewScImmutableUint8(s.proxy.Root(ParamRecyclateShare))
+}
+
 type MutableCreatePPParams struct {
 	proxy wasmtypes.Proxy
 }
@@ -87,6 +91,10 @@ func (s MutableCreatePPParams) Name() wasmtypes.ScMutableString {
 
 func (s MutableCreatePPParams) Purpose() wasmtypes.ScMutableString {
 	return wasmtypes.NewScMutableString(s.proxy.Root(ParamPurpose))
+}
+
+func (s MutableCreatePPParams) RecyclateShare() wasmtypes.ScMutableUint8 {
+	return wasmtypes.NewScMutableUint8(s.proxy.Root(ParamRecyclateShare))
 }
 
 type ImmutableCreateRecyclateParams struct {

@@ -16,16 +16,17 @@ const (
 )
 
 const (
-	ParamChargeWeight = "chargeWeight"
-	ParamComp         = "comp"
-	ParamExpiryDate   = "expiryDate"
-	ParamFracID       = "fracID"
-	ParamId           = "id"
-	ParamName         = "name"
-	ParamOwner        = "owner"
-	ParamPpID         = "ppID"
-	ParamProdPass     = "prodPass"
-	ParamPurpose      = "purpose"
+	ParamChargeWeight   = "chargeWeight"
+	ParamComp           = "comp"
+	ParamExpiryDate     = "expiryDate"
+	ParamFracID         = "fracID"
+	ParamId             = "id"
+	ParamName           = "name"
+	ParamOwner          = "owner"
+	ParamPpID           = "ppID"
+	ParamProdPass       = "prodPass"
+	ParamPurpose        = "purpose"
+	ParamRecyclateShare = "recyclateShare"
 )
 
 const (

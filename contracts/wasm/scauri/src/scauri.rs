@@ -54,6 +54,8 @@ pub fn func_create_pp(ctx: &ScFuncContext, f: &CreatePPContext) {
     let activationDate: u64 = ctx.timestamp() / NANO_TIME_DIVIDER;
     let expiryDate: u64 = f.params.expiry_date().value() / NANO_TIME_DIVIDER;
     let lastPayout = activationDate;
+    let recyclateShare = f.params.recyclate_share().value();
+
 
     let ppNew = ProductPass{
         id: id,
@@ -73,7 +75,8 @@ pub fn func_create_pp(ctx: &ScFuncContext, f: &CreatePPContext) {
         reward_per_package_recycler: rewardPaerPackageRecycler,
         activation_date: activationDate,
         expiry_date: expiryDate,
-        last_producer_payout: lastPayout
+        last_producer_payout: lastPayout,
+        recyclate_share: recyclateShare
 
     };
     
@@ -88,6 +91,9 @@ pub fn func_create_pp(ctx: &ScFuncContext, f: &CreatePPContext) {
     f.state.productpasses().get_product_pass(&ppNew.id).set_value(&ppNew);
     //f.state.payoffs().get_uint64(&ppNew.issuer).set_value((amount * share_recycler / 100) as u64); //noting the tokens the producer gets in case the packaging is recycled
     f.results.id().set_value(&ppNew.id);
+    ctx.log(&format!("result set value id: {id}", id=f.results.id().value().to_string()));
+    ctx.log(&format!("result id: {id}", id=&ppNew.id.to_string()));
+
     //f.events.ppcreated();
 }
 
@@ -169,15 +175,6 @@ pub fn func_create_fraction(ctx: &ScFuncContext, f: &CreateFractionContext) {
     };
     
     f.state.fractions().get_fraction(&newFrac.frac_id).set_value(&newFrac);
-    
-    /* not needed probably
-    let newFracComp = FracComposition {
-        material: "init".to_string(),
-        weight: 0
-        };
-    
-    f.state.frac_compositions().get_frac_compositions(&newFrac.frac_id).get_frac_composition(0).set_value(&newFracComp);
-    */
     f.results.frac_id().set_value(&newFrac.frac_id); 			
 }
 
@@ -199,7 +196,6 @@ pub fn func_add_pp_to_fraction(ctx: &ScFuncContext, f: &AddPPToFractionContext) 
         for j in 0..fracComp.length() {
             if ppComp.get_composition(i).value().material == fracComp.get_frac_composition(j).value().material {
                 let newWeight = fracComp.get_frac_composition(j).value().weight + ppComp.get_composition(i).value().proportion as u64 * pp.package_weight /1000;   // div by 1000 because proportion is in per mil
-                
                 let newShare = FracComposition {
                     material: ppComp.get_composition(i).value().material,
                     weight: newWeight
@@ -208,14 +204,14 @@ pub fn func_add_pp_to_fraction(ctx: &ScFuncContext, f: &AddPPToFractionContext) 
                 foundMat = true;
             }
         if !foundMat {
-            let index = fracComp.length();
             
-            let mat = ppComp.get_composition(i).value().material;
-            let wei: u64 = ppComp.get_composition(i).value().proportion as u64 * pp.package_weight / 1000;
+            let ppCompMaterial = ppComp.get_composition(i).value();
+            let mat = ppCompMaterial.material;
+            let wei: u64 = ppCompMaterial.proportion as u64 * pp.package_weight / 1000;
             
             let newMat = FracComposition{
                 material: mat,
-                weight: wei
+                weight: wei,
             };
             
             fracComp.append_frac_composition().set_value(&newMat);

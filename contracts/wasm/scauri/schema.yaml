@@ -21,6 +21,7 @@ structs:
     lastProducerPayout: Uint64
     activationDate: Uint64
     expiryDate: Uint64
+    recyclateShare: Uint8
   Composition:
     material: String
     proportion: Uint8
@@ -44,7 +45,7 @@ structs:
     fracId: Hash
   RecyComposition:
     material: String
-    weight: Uint64 //in mg 
+    weight: Uint64 //in mg
 typedefs:
   Compositions: Composition[]
   FracCompositions: FracComposition[]
@@ -70,6 +71,7 @@ funcs:
       name: String
       purpose: String
       expiryDate: Uint64
+      recyclateShare: Uint8
     results:
       id: Hash
   setMaterials:

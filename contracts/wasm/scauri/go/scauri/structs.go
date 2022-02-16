@@ -195,6 +195,7 @@ type ProductPass struct {
 	PackagesSorted           uint64 
 	PackagesWrongSorted      uint64 
 	Purpose                  string  //e.g. food, hygiene, others
+	RecyclateShare           uint8 
 	RewardPerPackageProducer uint64 
 	RewardPerPackageRecycler uint64 
 	TotalPackages            uint64 
@@ -218,6 +219,7 @@ func NewProductPassFromBytes(buf []byte) *ProductPass {
 	data.PackagesSorted           = wasmtypes.Uint64Decode(dec)
 	data.PackagesWrongSorted      = wasmtypes.Uint64Decode(dec)
 	data.Purpose                  = wasmtypes.StringDecode(dec)
+	data.RecyclateShare           = wasmtypes.Uint8Decode(dec)
 	data.RewardPerPackageProducer = wasmtypes.Uint64Decode(dec)
 	data.RewardPerPackageRecycler = wasmtypes.Uint64Decode(dec)
 	data.TotalPackages            = wasmtypes.Uint64Decode(dec)
@@ -242,6 +244,7 @@ func (o *ProductPass) Bytes() []byte {
 		wasmtypes.Uint64Encode(enc, o.PackagesSorted)
 		wasmtypes.Uint64Encode(enc, o.PackagesWrongSorted)
 		wasmtypes.StringEncode(enc, o.Purpose)
+		wasmtypes.Uint8Encode(enc, o.RecyclateShare)
 		wasmtypes.Uint64Encode(enc, o.RewardPerPackageProducer)
 		wasmtypes.Uint64Encode(enc, o.RewardPerPackageRecycler)
 		wasmtypes.Uint64Encode(enc, o.TotalPackages)
