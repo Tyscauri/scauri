@@ -41,13 +41,13 @@ pub fn func_create_pp(ctx: &ScFuncContext, f: &CreatePPContext) {
     let issuer: ScAgentID = ctx.caller();
     let version: u8 = 1;               //TEST IMPLEMENTATION - ADD as Parameter in create func like: f.params.version().value();
     let purpose: String = f.params.purpose().value();
-    let chargeWeight: u64 = 1000000000; // in miligramm
-    let packageWeight: u64 = 2000;  // in miligramm
-    let totalPackages: u64 = chargeWeight / packageWeight;
+    let packageWeight: u64 = f.params.package_weight().value();  // in miligramm
+    let packagesNumber: u64 = f.params.packages_number().value();
+    let chargeWeight: u64 = packageWeight * packagesNumber; // in miligramm
     let amountPerCharge: u64 = ctx.incoming().balance(&ScColor::IOTA);
-    let amountPerPackage: u64 = amountPerCharge * packageWeight / chargeWeight;
-    let rewardPerPackageProducer: u64 = amountPerCharge / totalPackages * ((100 - f.state.share_recycler().value()) / 100) as u64;
-    let rewardPaerPackageRecycler: u64 = amountPerCharge / totalPackages * f.state.share_recycler().value() as u64 / 100;
+    let amountPerPackage: u64 = amountPerCharge / packagesNumber;
+    let rewardPerPackageProducer: u64 = amountPerPackage * (100 - f.state.share_recycler().value() as u64) / 100;
+    let rewardPerPackageRecycler: u64 = amountPerPackage * f.state.share_recycler().value() as u64 / 100;
     let packagesSorted: u64 = 0;
     let packagesWrongSorted: u64 = 0;
     let packagesAlreadyPaid = 0;
@@ -66,13 +66,13 @@ pub fn func_create_pp(ctx: &ScFuncContext, f: &CreatePPContext) {
         purpose: purpose,
         charge_weight: chargeWeight, // in miligramm
         package_weight: packageWeight, //in miligramm
-        total_packages: totalPackages,
+        packages_number: packagesNumber,
         packages_sorted: packagesSorted,
         packages_wrong_sorted: packagesWrongSorted,
         packages_already_paid: packagesAlreadyPaid,
         amount_per_charge: amountPerCharge,
         reward_per_package_producer: rewardPerPackageProducer,
-        reward_per_package_recycler: rewardPaerPackageRecycler,
+        reward_per_package_recycler: rewardPerPackageRecycler,
         activation_date: activationDate,
         expiry_date: expiryDate,
         last_producer_payout: lastPayout,
@@ -87,14 +87,29 @@ pub fn func_create_pp(ctx: &ScFuncContext, f: &CreatePPContext) {
         ctx.panic(&format!("Charge does not provide sufficient token. '{tokens}'are required", tokens=requiredToken.to_string()));
     }
     
-    //let share_recycler = f.state.share_recycler().value() as i64;
     f.state.productpasses().get_product_pass(&ppNew.id).set_value(&ppNew);
-    //f.state.payoffs().get_uint64(&ppNew.issuer).set_value((amount * share_recycler / 100) as u64); //noting the tokens the producer gets in case the packaging is recycled
     f.results.id().set_value(&ppNew.id);
     ctx.log(&format!("result set value id: {id}", id=f.results.id().value().to_string()));
     ctx.log(&format!("result id: {id}", id=&ppNew.id.to_string()));
 
-    //f.events.ppcreated();
+
+    //set Materials
+        
+    let newComps= f.params.compositions();
+    
+    if newComps.length() == 0 {
+        ctx.panic("List of Materials cannot have length 0");
+    }
+    
+    let composition = f.state.compositions().get_compositions(&ppNew.id);
+    
+    composition.clear();
+    
+
+    for i in 0 .. newComps.length() {
+        composition.append_composition().set_value(&newComps.get_composition(i).value());
+    }
+
 }
 
 pub fn view_get_pp(ctx: &ScViewContext, f: &GetPPContext) {
@@ -139,21 +154,6 @@ pub fn view_get_materials(ctx: &ScViewContext, f: &GetMaterialsContext) {
     
 }
 
-//resets the material composition of a package charge
-pub fn func_set_materials(ctx: &ScFuncContext, f: &SetMaterialsContext) {
-    
-    let id = f.params.id().value();
-    let newComp = f.params.comp();
-    
-    let composition = f.state.compositions().get_compositions(&id);
-    
-    composition.clear();
-    
-    for i in 0 .. newComp.length() {
-        composition.append_composition().set_value(&newComp.get_composition(i).value());
-    }
-
-}
 
 pub fn func_create_fraction(ctx: &ScFuncContext, f: &CreateFractionContext) {
     
@@ -184,39 +184,59 @@ pub fn func_add_pp_to_fraction(ctx: &ScFuncContext, f: &AddPPToFractionContext) 
     let fracID = f.params.frac_id().value();
     let pp_proxy = f.state.productpasses().get_product_pass(&ppID);
     let pp: ProductPass = pp_proxy.value();
-    let ppComp = f.state.compositions().get_compositions(&ppID);
-    let fracComp = f.state.frac_compositions().get_frac_compositions(&fracID);
+    let ppComps = f.state.compositions().get_compositions(&ppID);
+    let fracComps = f.state.frac_compositions().get_frac_compositions(&fracID);
     let frac_proxy = f.state.fractions().get_fraction(&fracID);
-    
 
-    for i in 0..ppComp.length() {
     
-        let mut foundMat: bool = false;
-        
-        for j in 0..fracComp.length() {
-            if ppComp.get_composition(i).value().material == fracComp.get_frac_composition(j).value().material {
-                let newWeight = fracComp.get_frac_composition(j).value().weight + ppComp.get_composition(i).value().proportion as u64 * pp.package_weight /1000;   // div by 1000 because proportion is in per mil
-                let newShare = FracComposition {
-                    material: ppComp.get_composition(i).value().material,
-                    weight: newWeight
-                };
-                fracComp.get_frac_composition(j).set_value(&newShare);
-                foundMat = true;
-            }
-        if !foundMat {
+    if fracComps.length() > 0{
+
+        for i in 0..ppComps.length() {
+    
+            let mut foundMat: bool = false;
             
-            let ppCompMaterial = ppComp.get_composition(i).value();
-            let mat = ppCompMaterial.material;
-            let wei: u64 = ppCompMaterial.proportion as u64 * pp.package_weight / 1000;
+            for j in 0..fracComps.length() {
+                if ppComps.get_composition(i).value().material == fracComps.get_frac_composition(j).value().material {
+                    let newMass = fracComps.get_frac_composition(j).value().mass + ppComps.get_composition(i).value().mass;
+                    let newShare = FracComposition {
+                        material: ppComps.get_composition(i).value().material,
+                        mass: newMass
+                    };
+                    fracComps.get_frac_composition(j).set_value(&newShare);
+                    foundMat = true;
+                }
+            }    
+            if !foundMat {
+                
+                let ppComp = ppComps.get_composition(i).value();
+                let mat = ppComp.material;
+                let mass: u64 = ppComp.mass;
+                
+                let newMat = FracComposition{
+                    material: mat,
+                    mass: mass
+                };
+                
+                fracComps.append_frac_composition().set_value(&newMat);
+            }
+            
+        }
+    }
+
+    else {
+        for i in 0..ppComps.length() {
+
+            let ppComp = ppComps.get_composition(i).value();
+            let mat = ppComp.material;
+            let mass: u64 = ppComp.mass;
             
             let newMat = FracComposition{
                 material: mat,
-                weight: wei,
+                mass: mass
             };
             
-            fracComp.append_frac_composition().set_value(&newMat);
+            fracComps.append_frac_composition().set_value(&newMat);
             }
-        }
         
     }
     
@@ -269,11 +289,11 @@ pub fn func_create_recyclate(ctx: &ScFuncContext, f: &CreateRecyclateContext) {
         
         let fComp = fracComp.get_frac_composition(i).value();
         let mat = fComp.material;
-        let wei = fComp.weight;
+        let mass = fComp.mass;
         
         let recyComp = RecyComposition{
             material: mat,
-            weight: wei
+            mass: mass
         };
         newRecyCompProxy.append_recy_composition().set_value(&recyComp);
     }
@@ -315,62 +335,6 @@ fn create_random_hash(ctx: &ScFuncContext) -> ScHash {
 }
 
 
-/*
-pub fn func_payout(ctx: &ScFuncContext, f: &PayoutContext) {
-    let keys: ArrayOfMutableAgentID = f.state.payoff_keys();
-    let payoffs_proxy: MapAgentIDToMutableUint64 = f.state.payoffs();
-    
-    for i in 0..keys.length() {
-        let address: ScAgentID = keys.get_agent_id(i).value();
-        let payoff: i64 = payoffs_proxy.get_uint64(&address).value() as i64;
-     
-        if payoff > 1000000 {
-        
-            let transfers: ScTransfers = ScTransfers::iotas(payoff);
-
-            ctx.transfer_to_address(&address.address(), transfers);
-            payoffs_proxy.get_uint64(&address).set_value(0);
-        }
-    }
-}
-*/
-
-//wird nicht mehr gebraucht
-/*
-pub fn func_payout_frac(ctx: &ScFuncContext, f: &PayoutFracContext) {
-    
-    let lastpayout = f.state.last_payout();
-    let currentTime: u64 = ctx.timestamp() / NANO_TIME_DIVIDER;                   // timestamp in nano secs
-    
-    if lastpayout.value() + 86400 < currentTime{                                  //can be called only once per day (every 86400 seconds)
-        let frac_id = f.params.frac_id().value();
-        let keys: ArrayOfMutableAgentID = f.state.payoff_keys_frac().get_frac_payoff_keys(&frac_id);
-        let payoffs_proxy: MapAgentIDToMutableUint64 = f.state.payoffs_frac().get_frac_payoffs(&frac_id);
-    
-        for i in 0..keys.length() {
-            let address: ScAgentID = keys.get_agent_id(i).value();
-            let payoff: u64 = payoffs_proxy.get_uint64(&address).value();
-     
-            if payoff > 0 {
-        
-                let transfers: ScTransfers = ScTransfers::iotas(payoff);
-
-                ctx.transfer_to_address(&address.address(), transfers);
-                payoffs_proxy.get_uint64(&address).set_value(0);
-            }
-        }
-    
-        keys.clear();
-        payoffs_proxy.clear();
-        lastpayout.set_value(currentTime);
-    }
-    else {
-        ctx.panic("Functions can only be called once every 24 hours.");
-
-    }
-
-}*/
-
 pub fn func_payout_producer(ctx: &ScFuncContext, f: &PayoutProducerContext) {
 
 
@@ -400,35 +364,94 @@ pub fn func_payout_producer(ctx: &ScFuncContext, f: &PayoutProducerContext) {
 }
 
 pub fn func_delete_pp(ctx: &ScFuncContext, f: &DeletePPContext) {
+
     let ppID = f.params.pp_id().value();
     let pp_proxy: MutableProductPass = f.state.productpasses().get_product_pass(&ppID);
     let pp_value = pp_proxy.value();
     let total_number_packages = pp_value.charge_weight / pp_value.package_weight;
-
-    //payout remaing packages
+    
     if pp_value.expiry_date > ctx.timestamp() / NANO_TIME_DIVIDER || total_number_packages == pp_value.packages_sorted + pp_value.packages_wrong_sorted {
-        if pp_value.packages_sorted > pp_value.packages_already_paid {
-            let address: ScAgentID = pp_value.issuer;
-            let payout = pp_value.reward_per_package_producer * (&pp_value.packages_sorted - &pp_value.packages_already_paid);
+    
+        //payout remaing packages
+            if pp_value.packages_sorted > pp_value.packages_already_paid {
+                let address: ScAgentID = pp_value.issuer;
+                let payout = pp_value.reward_per_package_producer * (&pp_value.packages_sorted - &pp_value.packages_already_paid);
+            
+                pp_proxy.value().packages_already_paid = pp_value.packages_sorted;
+            
+                let transfers: ScTransfers = ScTransfers::iotas(payout);
+                ctx.transfer_to_address(&address.address(), transfers);
+            }
+    
+        let updated_pp_value = pp_proxy.value();
+    
+        let leftover_token = updated_pp_value.amount_per_charge - 
+            (updated_pp_value.packages_sorted + updated_pp_value.packages_wrong_sorted) * (updated_pp_value.reward_per_package_producer + updated_pp_value.reward_per_package_recycler);
+    
+        let token_to_donate_proxy = f.state.token_to_donate();
+        token_to_donate_proxy.set_value(token_to_donate_proxy.value() + leftover_token);
         
-            pp_proxy.value().packages_already_paid = pp_value.packages_sorted;
-        
-            let transfers: ScTransfers = ScTransfers::iotas(payout);
-            ctx.transfer_to_address(&address.address(), transfers);
-        }
+        //remove pp
+        f.state.productpasses().get_product_pass(&ppID).delete();
+        f.state.compositions().get_compositions(&ppID).clear();      //probably not functional right now
+    }
+    
+    else {
+        ctx.panic("Product pass cannot be deleted now.")
+    }
+}
 
+pub fn func_add_recycler(ctx: &ScFuncContext, f: &AddRecyclerContext) {
+    f.state.recyclers().append_agent_id().set_value(&f.params.recycler_id().value());
+}
+
+pub fn func_add_sorter(ctx: &ScFuncContext, f: &AddSorterContext) {
+    f.state.sorters().append_agent_id().set_value(&f.params.sorter_id().value());
+
+}
+
+pub fn view_get_fraction(ctx: &ScViewContext, f: &GetFractionContext) {
+
+    let id = f.params.frac_id().value();
+    let fractions: MapHashToImmutableFraction = f.state.fractions();
+    
+    if fractions.get_fraction(&id).exists() {
+
+        let frac: Fraction = fractions.get_fraction(&id).value();        
+        f.results.fraction().set_value(&frac);
+        let frac_composition = f.state.frac_compositions().get_frac_compositions(&id);
+        let fcomposition_results_proxy = f.results.frac_composition();
+
+        for i in 0..frac_composition.length() {
+            let comp =frac_composition.get_frac_composition(i).value();
+            fcomposition_results_proxy.append_frac_composition().set_value(&comp);
+
+        }
+    }
+    
+    else {
+    ctx.panic("Fraction ID not found");
     }
 
-    let updated_pp_value = pp_proxy.value();
+}
 
-    let leftover_token = updated_pp_value.amount_per_charge - 
-        (updated_pp_value.packages_sorted + updated_pp_value.packages_wrong_sorted) * (updated_pp_value.reward_per_package_producer + updated_pp_value.reward_per_package_recycler);
-
-    let token_to_donate_proxy = f.state.token_to_donate();
-    token_to_donate_proxy.set_value(token_to_donate_proxy.value() + leftover_token);
+pub fn view_get_recyclate(ctx: &ScViewContext, f: &GetRecyclateContext) {
+    let id = f.params.recy_id().value();
+    let recyclates: MapHashToImmutableRecyclate = f.state.recyclates();
     
-    //remove pp
-    f.state.productpasses().get_product_pass(&ppID).delete();
-    f.state.compositions().get_compositions(&ppID).clear();      //probably not functional right now
+    if recyclates.get_recyclate(&id).exists() {
+        let recy: Recyclate = recyclates.get_recyclate(&id).value();        
+        f.results.recyclate().set_value(&recy);
 
+        let recy_composition = f.state.recy_compositions().get_recy_compositions(&id);
+        let rcomposition_results_proxy = f.results.recy_composition();
+
+        for i in 0..recy_composition.length() {
+            rcomposition_results_proxy.append_recy_composition().set_value(&recy_composition.get_recy_composition(i).value());
+        }
+    }
+    
+    else {
+    ctx.panic("Recyclate ID not found");
+    }
 }

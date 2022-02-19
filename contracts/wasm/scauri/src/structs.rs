@@ -12,23 +12,23 @@ use wasmlib::*;
 
 #[derive(Clone)]
 pub struct Composition {
-    pub material   : String, 
-    pub proportion : u8, 
+    pub mass     : u64, 
+    pub material : String, 
 }
 
 impl Composition {
     pub fn from_bytes(bytes: &[u8]) -> Composition {
         let mut dec = WasmDecoder::new(bytes);
         Composition {
-            material   : string_decode(&mut dec),
-            proportion : uint8_decode(&mut dec),
+            mass     : uint64_decode(&mut dec),
+            material : string_decode(&mut dec),
         }
     }
 
     pub fn to_bytes(&self) -> Vec<u8> {
         let mut enc = WasmEncoder::new();
+		uint64_encode(&mut enc, self.mass);
 		string_encode(&mut enc, &self.material);
-		uint8_encode(&mut enc, self.proportion);
         enc.buf()
     }
 }
@@ -73,23 +73,23 @@ impl MutableComposition {
 
 #[derive(Clone)]
 pub struct FracComposition {
+    pub mass     : u64,  //in mg
     pub material : String, 
-    pub weight   : u64,  //in mg
 }
 
 impl FracComposition {
     pub fn from_bytes(bytes: &[u8]) -> FracComposition {
         let mut dec = WasmDecoder::new(bytes);
         FracComposition {
+            mass     : uint64_decode(&mut dec),
             material : string_decode(&mut dec),
-            weight   : uint64_decode(&mut dec),
         }
     }
 
     pub fn to_bytes(&self) -> Vec<u8> {
         let mut enc = WasmEncoder::new();
+		uint64_encode(&mut enc, self.mass);
 		string_encode(&mut enc, &self.material);
-		uint64_encode(&mut enc, self.weight);
         enc.buf()
     }
 }
@@ -218,13 +218,13 @@ pub struct ProductPass {
     pub name                        : String, 
     pub package_weight              : u64, 
     pub packages_already_paid       : u64, 
+    pub packages_number             : u64, 
     pub packages_sorted             : u64, 
     pub packages_wrong_sorted       : u64, 
     pub purpose                     : String,  //e.g. food, hygiene, others
     pub recyclate_share             : u8, 
     pub reward_per_package_producer : u64, 
     pub reward_per_package_recycler : u64, 
-    pub total_packages              : u64, 
     pub version                     : u8, 
 }
 
@@ -243,13 +243,13 @@ impl ProductPass {
             name                        : string_decode(&mut dec),
             package_weight              : uint64_decode(&mut dec),
             packages_already_paid       : uint64_decode(&mut dec),
+            packages_number             : uint64_decode(&mut dec),
             packages_sorted             : uint64_decode(&mut dec),
             packages_wrong_sorted       : uint64_decode(&mut dec),
             purpose                     : string_decode(&mut dec),
             recyclate_share             : uint8_decode(&mut dec),
             reward_per_package_producer : uint64_decode(&mut dec),
             reward_per_package_recycler : uint64_decode(&mut dec),
-            total_packages              : uint64_decode(&mut dec),
             version                     : uint8_decode(&mut dec),
         }
     }
@@ -267,13 +267,13 @@ impl ProductPass {
 		string_encode(&mut enc, &self.name);
 		uint64_encode(&mut enc, self.package_weight);
 		uint64_encode(&mut enc, self.packages_already_paid);
+		uint64_encode(&mut enc, self.packages_number);
 		uint64_encode(&mut enc, self.packages_sorted);
 		uint64_encode(&mut enc, self.packages_wrong_sorted);
 		string_encode(&mut enc, &self.purpose);
 		uint8_encode(&mut enc, self.recyclate_share);
 		uint64_encode(&mut enc, self.reward_per_package_producer);
 		uint64_encode(&mut enc, self.reward_per_package_recycler);
-		uint64_encode(&mut enc, self.total_packages);
 		uint8_encode(&mut enc, self.version);
         enc.buf()
     }
@@ -319,23 +319,23 @@ impl MutableProductPass {
 
 #[derive(Clone)]
 pub struct RecyComposition {
+    pub mass     : u64,  //in mg
     pub material : String, 
-    pub weight   : u64,  //in mg
 }
 
 impl RecyComposition {
     pub fn from_bytes(bytes: &[u8]) -> RecyComposition {
         let mut dec = WasmDecoder::new(bytes);
         RecyComposition {
+            mass     : uint64_decode(&mut dec),
             material : string_decode(&mut dec),
-            weight   : uint64_decode(&mut dec),
         }
     }
 
     pub fn to_bytes(&self) -> Vec<u8> {
         let mut enc = WasmEncoder::new();
+		uint64_encode(&mut enc, self.mass);
 		string_encode(&mut enc, &self.material);
-		uint64_encode(&mut enc, self.weight);
         enc.buf()
     }
 }

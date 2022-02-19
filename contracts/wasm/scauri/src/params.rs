@@ -42,6 +42,50 @@ impl MutableAddPPToFractionParams {
 }
 
 #[derive(Clone)]
+pub struct ImmutableAddRecyclerParams {
+	pub(crate) proxy: Proxy,
+}
+
+impl ImmutableAddRecyclerParams {
+    pub fn recycler_id(&self) -> ScImmutableAgentID {
+		ScImmutableAgentID::new(self.proxy.root(PARAM_RECYCLER_ID))
+	}
+}
+
+#[derive(Clone)]
+pub struct MutableAddRecyclerParams {
+	pub(crate) proxy: Proxy,
+}
+
+impl MutableAddRecyclerParams {
+    pub fn recycler_id(&self) -> ScMutableAgentID {
+		ScMutableAgentID::new(self.proxy.root(PARAM_RECYCLER_ID))
+	}
+}
+
+#[derive(Clone)]
+pub struct ImmutableAddSorterParams {
+	pub(crate) proxy: Proxy,
+}
+
+impl ImmutableAddSorterParams {
+    pub fn sorter_id(&self) -> ScImmutableAgentID {
+		ScImmutableAgentID::new(self.proxy.root(PARAM_SORTER_ID))
+	}
+}
+
+#[derive(Clone)]
+pub struct MutableAddSorterParams {
+	pub(crate) proxy: Proxy,
+}
+
+impl MutableAddSorterParams {
+    pub fn sorter_id(&self) -> ScMutableAgentID {
+		ScMutableAgentID::new(self.proxy.root(PARAM_SORTER_ID))
+	}
+}
+
+#[derive(Clone)]
 pub struct ImmutableCreateFractionParams {
 	pub(crate) proxy: Proxy,
 }
@@ -77,12 +121,24 @@ pub struct ImmutableCreatePPParams {
 }
 
 impl ImmutableCreatePPParams {
+    pub fn compositions(&self) -> ImmutableCompositions {
+		ImmutableCompositions { proxy: self.proxy.root(PARAM_COMPOSITIONS) }
+	}
+
     pub fn expiry_date(&self) -> ScImmutableUint64 {
 		ScImmutableUint64::new(self.proxy.root(PARAM_EXPIRY_DATE))
 	}
 
     pub fn name(&self) -> ScImmutableString {
 		ScImmutableString::new(self.proxy.root(PARAM_NAME))
+	}
+
+    pub fn package_weight(&self) -> ScImmutableUint64 {
+		ScImmutableUint64::new(self.proxy.root(PARAM_PACKAGE_WEIGHT))
+	}
+
+    pub fn packages_number(&self) -> ScImmutableUint64 {
+		ScImmutableUint64::new(self.proxy.root(PARAM_PACKAGES_NUMBER))
 	}
 
     pub fn purpose(&self) -> ScImmutableString {
@@ -100,12 +156,24 @@ pub struct MutableCreatePPParams {
 }
 
 impl MutableCreatePPParams {
+    pub fn compositions(&self) -> MutableCompositions {
+		MutableCompositions { proxy: self.proxy.root(PARAM_COMPOSITIONS) }
+	}
+
     pub fn expiry_date(&self) -> ScMutableUint64 {
 		ScMutableUint64::new(self.proxy.root(PARAM_EXPIRY_DATE))
 	}
 
     pub fn name(&self) -> ScMutableString {
 		ScMutableString::new(self.proxy.root(PARAM_NAME))
+	}
+
+    pub fn package_weight(&self) -> ScMutableUint64 {
+		ScMutableUint64::new(self.proxy.root(PARAM_PACKAGE_WEIGHT))
+	}
+
+    pub fn packages_number(&self) -> ScMutableUint64 {
+		ScMutableUint64::new(self.proxy.root(PARAM_PACKAGES_NUMBER))
 	}
 
     pub fn purpose(&self) -> ScMutableString {
@@ -214,36 +282,6 @@ impl MutablePayoutProducerParams {
 }
 
 #[derive(Clone)]
-pub struct ImmutableSetMaterialsParams {
-	pub(crate) proxy: Proxy,
-}
-
-impl ImmutableSetMaterialsParams {
-    pub fn comp(&self) -> ImmutableCompositions {
-		ImmutableCompositions { proxy: self.proxy.root(PARAM_COMP) }
-	}
-
-    pub fn id(&self) -> ScImmutableHash {
-		ScImmutableHash::new(self.proxy.root(PARAM_ID))
-	}
-}
-
-#[derive(Clone)]
-pub struct MutableSetMaterialsParams {
-	pub(crate) proxy: Proxy,
-}
-
-impl MutableSetMaterialsParams {
-    pub fn comp(&self) -> MutableCompositions {
-		MutableCompositions { proxy: self.proxy.root(PARAM_COMP) }
-	}
-
-    pub fn id(&self) -> ScMutableHash {
-		ScMutableHash::new(self.proxy.root(PARAM_ID))
-	}
-}
-
-#[derive(Clone)]
 pub struct ImmutableSetOwnerParams {
 	pub(crate) proxy: Proxy,
 }
@@ -288,6 +326,28 @@ impl MutableGetAmountOfRequiredFundsParams {
 }
 
 #[derive(Clone)]
+pub struct ImmutableGetFractionParams {
+	pub(crate) proxy: Proxy,
+}
+
+impl ImmutableGetFractionParams {
+    pub fn frac_id(&self) -> ScImmutableHash {
+		ScImmutableHash::new(self.proxy.root(PARAM_FRAC_ID))
+	}
+}
+
+#[derive(Clone)]
+pub struct MutableGetFractionParams {
+	pub(crate) proxy: Proxy,
+}
+
+impl MutableGetFractionParams {
+    pub fn frac_id(&self) -> ScMutableHash {
+		ScMutableHash::new(self.proxy.root(PARAM_FRAC_ID))
+	}
+}
+
+#[derive(Clone)]
 pub struct ImmutableGetMaterialsParams {
 	pub(crate) proxy: Proxy,
 }
@@ -328,6 +388,28 @@ pub struct MutableGetPPParams {
 impl MutableGetPPParams {
     pub fn id(&self) -> ScMutableHash {
 		ScMutableHash::new(self.proxy.root(PARAM_ID))
+	}
+}
+
+#[derive(Clone)]
+pub struct ImmutableGetRecyclateParams {
+	pub(crate) proxy: Proxy,
+}
+
+impl ImmutableGetRecyclateParams {
+    pub fn recy_id(&self) -> ScImmutableHash {
+		ScImmutableHash::new(self.proxy.root(PARAM_RECY_ID))
+	}
+}
+
+#[derive(Clone)]
+pub struct MutableGetRecyclateParams {
+	pub(crate) proxy: Proxy,
+}
+
+impl MutableGetRecyclateParams {
+    pub fn recy_id(&self) -> ScMutableHash {
+		ScMutableHash::new(self.proxy.root(PARAM_RECY_ID))
 	}
 }
 

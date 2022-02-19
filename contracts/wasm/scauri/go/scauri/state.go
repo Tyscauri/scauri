@@ -57,6 +57,18 @@ func (m MapHashToImmutableRecyclate) GetRecyclate(key wasmtypes.ScHash) Immutabl
 	return ImmutableRecyclate{proxy: m.proxy.Key(wasmtypes.HashToBytes(key))}
 }
 
+type ArrayOfImmutableAgentID struct {
+	proxy wasmtypes.Proxy
+}
+
+func (a ArrayOfImmutableAgentID) Length() uint32 {
+	return a.proxy.Length()
+}
+
+func (a ArrayOfImmutableAgentID) GetAgentID(index uint32) wasmtypes.ScImmutableAgentID {
+	return wasmtypes.NewScImmutableAgentID(a.proxy.Index(index))
+}
+
 type ImmutablescauriState struct {
 	proxy wasmtypes.Proxy
 }
@@ -97,8 +109,16 @@ func (s ImmutablescauriState) Recyclates() MapHashToImmutableRecyclate {
 	return MapHashToImmutableRecyclate{proxy: s.proxy.Root(StateRecyclates)}
 }
 
+func (s ImmutablescauriState) Recyclers() ArrayOfImmutableAgentID {
+	return ArrayOfImmutableAgentID{proxy: s.proxy.Root(StateRecyclers)}
+}
+
 func (s ImmutablescauriState) ShareRecycler() wasmtypes.ScImmutableUint8 {
 	return wasmtypes.NewScImmutableUint8(s.proxy.Root(StateShareRecycler))
+}
+
+func (s ImmutablescauriState) Sorters() ArrayOfImmutableAgentID {
+	return ArrayOfImmutableAgentID{proxy: s.proxy.Root(StateSorters)}
 }
 
 func (s ImmutablescauriState) TokenToDonate() wasmtypes.ScImmutableUint64 {
@@ -177,6 +197,26 @@ func (m MapHashToMutableRecyclate) GetRecyclate(key wasmtypes.ScHash) MutableRec
 	return MutableRecyclate{proxy: m.proxy.Key(wasmtypes.HashToBytes(key))}
 }
 
+type ArrayOfMutableAgentID struct {
+	proxy wasmtypes.Proxy
+}
+
+func (a ArrayOfMutableAgentID) AppendAgentID() wasmtypes.ScMutableAgentID {
+	return wasmtypes.NewScMutableAgentID(a.proxy.Append())
+}
+
+func (a ArrayOfMutableAgentID) Clear() {
+	a.proxy.ClearArray()
+}
+
+func (a ArrayOfMutableAgentID) Length() uint32 {
+	return a.proxy.Length()
+}
+
+func (a ArrayOfMutableAgentID) GetAgentID(index uint32) wasmtypes.ScMutableAgentID {
+	return wasmtypes.NewScMutableAgentID(a.proxy.Index(index))
+}
+
 type MutablescauriState struct {
 	proxy wasmtypes.Proxy
 }
@@ -221,8 +261,16 @@ func (s MutablescauriState) Recyclates() MapHashToMutableRecyclate {
 	return MapHashToMutableRecyclate{proxy: s.proxy.Root(StateRecyclates)}
 }
 
+func (s MutablescauriState) Recyclers() ArrayOfMutableAgentID {
+	return ArrayOfMutableAgentID{proxy: s.proxy.Root(StateRecyclers)}
+}
+
 func (s MutablescauriState) ShareRecycler() wasmtypes.ScMutableUint8 {
 	return wasmtypes.NewScMutableUint8(s.proxy.Root(StateShareRecycler))
+}
+
+func (s MutablescauriState) Sorters() ArrayOfMutableAgentID {
+	return ArrayOfMutableAgentID{proxy: s.proxy.Root(StateSorters)}
 }
 
 func (s MutablescauriState) TokenToDonate() wasmtypes.ScMutableUint64 {

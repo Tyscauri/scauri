@@ -121,6 +121,30 @@ func (s MutableGetAmountOfRequiredFundsResults) TokenRequired() wasmtypes.ScMuta
 	return wasmtypes.NewScMutableUint64(s.proxy.Root(ResultTokenRequired))
 }
 
+type ImmutableGetFractionResults struct {
+	proxy wasmtypes.Proxy
+}
+
+func (s ImmutableGetFractionResults) FracComposition() ImmutableFracCompositions {
+	return ImmutableFracCompositions{proxy: s.proxy.Root(ResultFracComposition)}
+}
+
+func (s ImmutableGetFractionResults) Fraction() ImmutableFraction {
+	return ImmutableFraction{proxy: s.proxy.Root(ResultFraction)}
+}
+
+type MutableGetFractionResults struct {
+	proxy wasmtypes.Proxy
+}
+
+func (s MutableGetFractionResults) FracComposition() MutableFracCompositions {
+	return MutableFracCompositions{proxy: s.proxy.Root(ResultFracComposition)}
+}
+
+func (s MutableGetFractionResults) Fraction() MutableFraction {
+	return MutableFraction{proxy: s.proxy.Root(ResultFraction)}
+}
+
 type ImmutableGetMaterialsResults struct {
 	proxy wasmtypes.Proxy
 }
@@ -175,6 +199,30 @@ func (s MutableGetPPResults) Ppname() wasmtypes.ScMutableString {
 
 func (s MutableGetPPResults) Ppresult() MutableProductPass {
 	return MutableProductPass{proxy: s.proxy.Root(ResultPpresult)}
+}
+
+type ImmutableGetRecyclateResults struct {
+	proxy wasmtypes.Proxy
+}
+
+func (s ImmutableGetRecyclateResults) RecyComposition() ImmutableRecyCompositions {
+	return ImmutableRecyCompositions{proxy: s.proxy.Root(ResultRecyComposition)}
+}
+
+func (s ImmutableGetRecyclateResults) Recyclate() ImmutableRecyclate {
+	return ImmutableRecyclate{proxy: s.proxy.Root(ResultRecyclate)}
+}
+
+type MutableGetRecyclateResults struct {
+	proxy wasmtypes.Proxy
+}
+
+func (s MutableGetRecyclateResults) RecyComposition() MutableRecyCompositions {
+	return MutableRecyCompositions{proxy: s.proxy.Root(ResultRecyComposition)}
+}
+
+func (s MutableGetRecyclateResults) Recyclate() MutableRecyclate {
+	return MutableRecyclate{proxy: s.proxy.Root(ResultRecyclate)}
 }
 
 type ImmutableGetTokenPerPackageResults struct {

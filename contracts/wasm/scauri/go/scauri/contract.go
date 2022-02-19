@@ -15,6 +15,16 @@ type AddPPToFractionCall struct {
 	Results ImmutableAddPPToFractionResults
 }
 
+type AddRecyclerCall struct {
+	Func    *wasmlib.ScFunc
+	Params  MutableAddRecyclerParams
+}
+
+type AddSorterCall struct {
+	Func    *wasmlib.ScFunc
+	Params  MutableAddSorterParams
+}
+
 type CreateFractionCall struct {
 	Func    *wasmlib.ScFunc
 	Params  MutableCreateFractionParams
@@ -49,11 +59,6 @@ type PayoutProducerCall struct {
 	Params  MutablePayoutProducerParams
 }
 
-type SetMaterialsCall struct {
-	Func    *wasmlib.ScFunc
-	Params  MutableSetMaterialsParams
-}
-
 type SetOwnerCall struct {
 	Func    *wasmlib.ScFunc
 	Params  MutableSetOwnerParams
@@ -63,6 +68,12 @@ type GetAmountOfRequiredFundsCall struct {
 	Func    *wasmlib.ScView
 	Params  MutableGetAmountOfRequiredFundsParams
 	Results ImmutableGetAmountOfRequiredFundsResults
+}
+
+type GetFractionCall struct {
+	Func    *wasmlib.ScView
+	Params  MutableGetFractionParams
+	Results ImmutableGetFractionResults
 }
 
 type GetMaterialsCall struct {
@@ -82,6 +93,12 @@ type GetPPCall struct {
 	Results ImmutableGetPPResults
 }
 
+type GetRecyclateCall struct {
+	Func    *wasmlib.ScView
+	Params  MutableGetRecyclateParams
+	Results ImmutableGetRecyclateResults
+}
+
 type GetTokenPerPackageCall struct {
 	Func    *wasmlib.ScView
 	Params  MutableGetTokenPerPackageParams
@@ -96,6 +113,18 @@ func (sc Funcs) AddPPToFraction(ctx wasmlib.ScFuncCallContext) *AddPPToFractionC
 	f := &AddPPToFractionCall{Func: wasmlib.NewScFunc(ctx, HScName, HFuncAddPPToFraction)}
 	f.Params.proxy = wasmlib.NewCallParamsProxy(&f.Func.ScView)
 	wasmlib.NewCallResultsProxy(&f.Func.ScView, &f.Results.proxy)
+	return f
+}
+
+func (sc Funcs) AddRecycler(ctx wasmlib.ScFuncCallContext) *AddRecyclerCall {
+	f := &AddRecyclerCall{Func: wasmlib.NewScFunc(ctx, HScName, HFuncAddRecycler)}
+	f.Params.proxy = wasmlib.NewCallParamsProxy(&f.Func.ScView)
+	return f
+}
+
+func (sc Funcs) AddSorter(ctx wasmlib.ScFuncCallContext) *AddSorterCall {
+	f := &AddSorterCall{Func: wasmlib.NewScFunc(ctx, HScName, HFuncAddSorter)}
+	f.Params.proxy = wasmlib.NewCallParamsProxy(&f.Func.ScView)
 	return f
 }
 
@@ -139,12 +168,6 @@ func (sc Funcs) PayoutProducer(ctx wasmlib.ScFuncCallContext) *PayoutProducerCal
 	return f
 }
 
-func (sc Funcs) SetMaterials(ctx wasmlib.ScFuncCallContext) *SetMaterialsCall {
-	f := &SetMaterialsCall{Func: wasmlib.NewScFunc(ctx, HScName, HFuncSetMaterials)}
-	f.Params.proxy = wasmlib.NewCallParamsProxy(&f.Func.ScView)
-	return f
-}
-
 func (sc Funcs) SetOwner(ctx wasmlib.ScFuncCallContext) *SetOwnerCall {
 	f := &SetOwnerCall{Func: wasmlib.NewScFunc(ctx, HScName, HFuncSetOwner)}
 	f.Params.proxy = wasmlib.NewCallParamsProxy(&f.Func.ScView)
@@ -153,6 +176,13 @@ func (sc Funcs) SetOwner(ctx wasmlib.ScFuncCallContext) *SetOwnerCall {
 
 func (sc Funcs) GetAmountOfRequiredFunds(ctx wasmlib.ScViewCallContext) *GetAmountOfRequiredFundsCall {
 	f := &GetAmountOfRequiredFundsCall{Func: wasmlib.NewScView(ctx, HScName, HViewGetAmountOfRequiredFunds)}
+	f.Params.proxy = wasmlib.NewCallParamsProxy(f.Func)
+	wasmlib.NewCallResultsProxy(f.Func, &f.Results.proxy)
+	return f
+}
+
+func (sc Funcs) GetFraction(ctx wasmlib.ScViewCallContext) *GetFractionCall {
+	f := &GetFractionCall{Func: wasmlib.NewScView(ctx, HScName, HViewGetFraction)}
 	f.Params.proxy = wasmlib.NewCallParamsProxy(f.Func)
 	wasmlib.NewCallResultsProxy(f.Func, &f.Results.proxy)
 	return f
@@ -173,6 +203,13 @@ func (sc Funcs) GetOwner(ctx wasmlib.ScViewCallContext) *GetOwnerCall {
 
 func (sc Funcs) GetPP(ctx wasmlib.ScViewCallContext) *GetPPCall {
 	f := &GetPPCall{Func: wasmlib.NewScView(ctx, HScName, HViewGetPP)}
+	f.Params.proxy = wasmlib.NewCallParamsProxy(f.Func)
+	wasmlib.NewCallResultsProxy(f.Func, &f.Results.proxy)
+	return f
+}
+
+func (sc Funcs) GetRecyclate(ctx wasmlib.ScViewCallContext) *GetRecyclateCall {
+	f := &GetRecyclateCall{Func: wasmlib.NewScView(ctx, HScName, HViewGetRecyclate)}
 	f.Params.proxy = wasmlib.NewCallParamsProxy(f.Func)
 	wasmlib.NewCallResultsProxy(f.Func, &f.Results.proxy)
 	return f

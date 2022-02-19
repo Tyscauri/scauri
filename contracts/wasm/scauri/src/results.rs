@@ -160,6 +160,36 @@ impl MutableGetAmountOfRequiredFundsResults {
 }
 
 #[derive(Clone)]
+pub struct ImmutableGetFractionResults {
+	pub(crate) proxy: Proxy,
+}
+
+impl ImmutableGetFractionResults {
+    pub fn frac_composition(&self) -> ImmutableFracCompositions {
+		ImmutableFracCompositions { proxy: self.proxy.root(RESULT_FRAC_COMPOSITION) }
+	}
+
+    pub fn fraction(&self) -> ImmutableFraction {
+		ImmutableFraction { proxy: self.proxy.root(RESULT_FRACTION) }
+	}
+}
+
+#[derive(Clone)]
+pub struct MutableGetFractionResults {
+	pub(crate) proxy: Proxy,
+}
+
+impl MutableGetFractionResults {
+    pub fn frac_composition(&self) -> MutableFracCompositions {
+		MutableFracCompositions { proxy: self.proxy.root(RESULT_FRAC_COMPOSITION) }
+	}
+
+    pub fn fraction(&self) -> MutableFraction {
+		MutableFraction { proxy: self.proxy.root(RESULT_FRACTION) }
+	}
+}
+
+#[derive(Clone)]
 pub struct ImmutableGetMaterialsResults {
 	pub(crate) proxy: Proxy,
 }
@@ -230,6 +260,36 @@ impl MutableGetPPResults {
 
     pub fn ppresult(&self) -> MutableProductPass {
 		MutableProductPass { proxy: self.proxy.root(RESULT_PPRESULT) }
+	}
+}
+
+#[derive(Clone)]
+pub struct ImmutableGetRecyclateResults {
+	pub(crate) proxy: Proxy,
+}
+
+impl ImmutableGetRecyclateResults {
+    pub fn recy_composition(&self) -> ImmutableRecyCompositions {
+		ImmutableRecyCompositions { proxy: self.proxy.root(RESULT_RECY_COMPOSITION) }
+	}
+
+    pub fn recyclate(&self) -> ImmutableRecyclate {
+		ImmutableRecyclate { proxy: self.proxy.root(RESULT_RECYCLATE) }
+	}
+}
+
+#[derive(Clone)]
+pub struct MutableGetRecyclateResults {
+	pub(crate) proxy: Proxy,
+}
+
+impl MutableGetRecyclateResults {
+    pub fn recy_composition(&self) -> MutableRecyCompositions {
+		MutableRecyCompositions { proxy: self.proxy.root(RESULT_RECY_COMPOSITION) }
+	}
+
+    pub fn recyclate(&self) -> MutableRecyclate {
+		MutableRecyclate { proxy: self.proxy.root(RESULT_RECYCLATE) }
 	}
 }
 

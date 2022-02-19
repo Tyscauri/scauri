@@ -33,6 +33,38 @@ func (s MutableAddPPToFractionParams) PpID() wasmtypes.ScMutableHash {
 	return wasmtypes.NewScMutableHash(s.proxy.Root(ParamPpID))
 }
 
+type ImmutableAddRecyclerParams struct {
+	proxy wasmtypes.Proxy
+}
+
+func (s ImmutableAddRecyclerParams) RecyclerID() wasmtypes.ScImmutableAgentID {
+	return wasmtypes.NewScImmutableAgentID(s.proxy.Root(ParamRecyclerID))
+}
+
+type MutableAddRecyclerParams struct {
+	proxy wasmtypes.Proxy
+}
+
+func (s MutableAddRecyclerParams) RecyclerID() wasmtypes.ScMutableAgentID {
+	return wasmtypes.NewScMutableAgentID(s.proxy.Root(ParamRecyclerID))
+}
+
+type ImmutableAddSorterParams struct {
+	proxy wasmtypes.Proxy
+}
+
+func (s ImmutableAddSorterParams) SorterID() wasmtypes.ScImmutableAgentID {
+	return wasmtypes.NewScImmutableAgentID(s.proxy.Root(ParamSorterID))
+}
+
+type MutableAddSorterParams struct {
+	proxy wasmtypes.Proxy
+}
+
+func (s MutableAddSorterParams) SorterID() wasmtypes.ScMutableAgentID {
+	return wasmtypes.NewScMutableAgentID(s.proxy.Root(ParamSorterID))
+}
+
 type ImmutableCreateFractionParams struct {
 	proxy wasmtypes.Proxy
 }
@@ -61,12 +93,24 @@ type ImmutableCreatePPParams struct {
 	proxy wasmtypes.Proxy
 }
 
+func (s ImmutableCreatePPParams) Compositions() ImmutableCompositions {
+	return ImmutableCompositions{proxy: s.proxy.Root(ParamCompositions)}
+}
+
 func (s ImmutableCreatePPParams) ExpiryDate() wasmtypes.ScImmutableUint64 {
 	return wasmtypes.NewScImmutableUint64(s.proxy.Root(ParamExpiryDate))
 }
 
 func (s ImmutableCreatePPParams) Name() wasmtypes.ScImmutableString {
 	return wasmtypes.NewScImmutableString(s.proxy.Root(ParamName))
+}
+
+func (s ImmutableCreatePPParams) PackageWeight() wasmtypes.ScImmutableUint64 {
+	return wasmtypes.NewScImmutableUint64(s.proxy.Root(ParamPackageWeight))
+}
+
+func (s ImmutableCreatePPParams) PackagesNumber() wasmtypes.ScImmutableUint64 {
+	return wasmtypes.NewScImmutableUint64(s.proxy.Root(ParamPackagesNumber))
 }
 
 func (s ImmutableCreatePPParams) Purpose() wasmtypes.ScImmutableString {
@@ -81,12 +125,24 @@ type MutableCreatePPParams struct {
 	proxy wasmtypes.Proxy
 }
 
+func (s MutableCreatePPParams) Compositions() MutableCompositions {
+	return MutableCompositions{proxy: s.proxy.Root(ParamCompositions)}
+}
+
 func (s MutableCreatePPParams) ExpiryDate() wasmtypes.ScMutableUint64 {
 	return wasmtypes.NewScMutableUint64(s.proxy.Root(ParamExpiryDate))
 }
 
 func (s MutableCreatePPParams) Name() wasmtypes.ScMutableString {
 	return wasmtypes.NewScMutableString(s.proxy.Root(ParamName))
+}
+
+func (s MutableCreatePPParams) PackageWeight() wasmtypes.ScMutableUint64 {
+	return wasmtypes.NewScMutableUint64(s.proxy.Root(ParamPackageWeight))
+}
+
+func (s MutableCreatePPParams) PackagesNumber() wasmtypes.ScMutableUint64 {
+	return wasmtypes.NewScMutableUint64(s.proxy.Root(ParamPackagesNumber))
 }
 
 func (s MutableCreatePPParams) Purpose() wasmtypes.ScMutableString {
@@ -169,30 +225,6 @@ func (s MutablePayoutProducerParams) FracID() wasmtypes.ScMutableHash {
 	return wasmtypes.NewScMutableHash(s.proxy.Root(ParamFracID))
 }
 
-type ImmutableSetMaterialsParams struct {
-	proxy wasmtypes.Proxy
-}
-
-func (s ImmutableSetMaterialsParams) Comp() ImmutableCompositions {
-	return ImmutableCompositions{proxy: s.proxy.Root(ParamComp)}
-}
-
-func (s ImmutableSetMaterialsParams) Id() wasmtypes.ScImmutableHash {
-	return wasmtypes.NewScImmutableHash(s.proxy.Root(ParamId))
-}
-
-type MutableSetMaterialsParams struct {
-	proxy wasmtypes.Proxy
-}
-
-func (s MutableSetMaterialsParams) Comp() MutableCompositions {
-	return MutableCompositions{proxy: s.proxy.Root(ParamComp)}
-}
-
-func (s MutableSetMaterialsParams) Id() wasmtypes.ScMutableHash {
-	return wasmtypes.NewScMutableHash(s.proxy.Root(ParamId))
-}
-
 type ImmutableSetOwnerParams struct {
 	proxy wasmtypes.Proxy
 }
@@ -225,6 +257,22 @@ func (s MutableGetAmountOfRequiredFundsParams) ChargeWeight() wasmtypes.ScMutabl
 	return wasmtypes.NewScMutableUint64(s.proxy.Root(ParamChargeWeight))
 }
 
+type ImmutableGetFractionParams struct {
+	proxy wasmtypes.Proxy
+}
+
+func (s ImmutableGetFractionParams) FracID() wasmtypes.ScImmutableHash {
+	return wasmtypes.NewScImmutableHash(s.proxy.Root(ParamFracID))
+}
+
+type MutableGetFractionParams struct {
+	proxy wasmtypes.Proxy
+}
+
+func (s MutableGetFractionParams) FracID() wasmtypes.ScMutableHash {
+	return wasmtypes.NewScMutableHash(s.proxy.Root(ParamFracID))
+}
+
 type ImmutableGetMaterialsParams struct {
 	proxy wasmtypes.Proxy
 }
@@ -255,6 +303,22 @@ type MutableGetPPParams struct {
 
 func (s MutableGetPPParams) Id() wasmtypes.ScMutableHash {
 	return wasmtypes.NewScMutableHash(s.proxy.Root(ParamId))
+}
+
+type ImmutableGetRecyclateParams struct {
+	proxy wasmtypes.Proxy
+}
+
+func (s ImmutableGetRecyclateParams) RecyID() wasmtypes.ScImmutableHash {
+	return wasmtypes.NewScImmutableHash(s.proxy.Root(ParamRecyID))
+}
+
+type MutableGetRecyclateParams struct {
+	proxy wasmtypes.Proxy
+}
+
+func (s MutableGetRecyclateParams) RecyID() wasmtypes.ScMutableHash {
+	return wasmtypes.NewScMutableHash(s.proxy.Root(ParamRecyID))
 }
 
 type ImmutableGetTokenPerPackageParams struct {

@@ -9,9 +9,9 @@ structs:
     issuer: AgentID //packaging producer
     version: Uint8
     purpose: String    //e.g. food, hygiene, others
-    chargeWeight: Uint64
+    packagesNumber: Uint64
     packageWeight: Uint64
-    totalPackages: Uint64
+    chargeWeight: Uint64
     packagesSorted: Uint64
     packagesWrongSorted: Uint64
     packagesAlreadyPaid: Uint64
@@ -24,7 +24,7 @@ structs:
     recyclateShare: Uint8
   Composition:
     material: String
-    proportion: Uint8
+    mass: Uint64
   Fraction:
     fracId: Hash
     did: String
@@ -34,7 +34,7 @@ structs:
     amount: Uint64
   FracComposition:
     material: String
-    weight: Uint64 //in mg
+    mass: Uint64 //in mg
   Recyclate:
     recyId: Hash
     did: String
@@ -45,7 +45,7 @@ structs:
     fracId: Hash
   RecyComposition:
     material: String
-    weight: Uint64 //in mg
+    mass: Uint64 //in mg
 typedefs:
   Compositions: Composition[]
   FracCompositions: FracComposition[]
@@ -62,6 +62,8 @@ state:
   recyCompositions: map[Hash]RecyCompositions
   donationAddress: AgentID
   tokenToDonate: Uint64
+  sorters: AgentID[]
+  recyclers: AgentID[]
 funcs:
   init:
     params:
@@ -70,14 +72,13 @@ funcs:
     params: 
       name: String
       purpose: String
+      packagesNumber: Uint64
+      packageWeight: Uint64
       expiryDate: Uint64
       recyclateShare: Uint8
+      compositions: Compositions 
     results:
       id: Hash
-  setMaterials:
-    params:
-      id: Hash
-      comp: Compositions?
   setOwner:
     access: owner // current owner of this smart contract
     params:
@@ -110,6 +111,14 @@ funcs:
       ppID: Hash
     results:
       pp: ProductPass
+  addSorter:
+    access: owner
+    params:
+      sorterID: AgentID
+  addRecycler:
+    access: owner
+    params:
+      recyclerID: AgentID
 views:
   getPP:
     params: 
@@ -122,6 +131,18 @@ views:
       id: Hash
     results:
       compositions: Compositions
+  getFraction:
+    params:
+      fracID: Hash
+    results:
+      fraction: Fraction
+      fracComposition: FracCompositions
+  getRecyclate:
+    params:
+      recyID: Hash
+    results:
+      recyclate: Recyclate
+      recyComposition: RecyCompositions
   getOwner:
     results:
       owner: AgentID // current owner of this smart contract

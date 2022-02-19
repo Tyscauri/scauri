@@ -10,23 +10,23 @@ package scauri
 import "github.com/iotaledger/wasp/packages/wasmvm/wasmlib/go/wasmlib/wasmtypes"
 
 type Composition struct {
-	Material   string 
-	Proportion uint8 
+	Mass     uint64 
+	Material string 
 }
 
 func NewCompositionFromBytes(buf []byte) *Composition {
 	dec := wasmtypes.NewWasmDecoder(buf)
 	data := &Composition{}
-	data.Material   = wasmtypes.StringDecode(dec)
-	data.Proportion = wasmtypes.Uint8Decode(dec)
+	data.Mass     = wasmtypes.Uint64Decode(dec)
+	data.Material = wasmtypes.StringDecode(dec)
 	dec.Close()
 	return data
 }
 
 func (o *Composition) Bytes() []byte {
 	enc := wasmtypes.NewWasmEncoder()
+		wasmtypes.Uint64Encode(enc, o.Mass)
 		wasmtypes.StringEncode(enc, o.Material)
-		wasmtypes.Uint8Encode(enc, o.Proportion)
 	return enc.Buf()
 }
 
@@ -63,23 +63,23 @@ func (o MutableComposition) Value() *Composition {
 }
 
 type FracComposition struct {
+	Mass     uint64  //in mg
 	Material string 
-	Weight   uint64  //in mg
 }
 
 func NewFracCompositionFromBytes(buf []byte) *FracComposition {
 	dec := wasmtypes.NewWasmDecoder(buf)
 	data := &FracComposition{}
+	data.Mass     = wasmtypes.Uint64Decode(dec)
 	data.Material = wasmtypes.StringDecode(dec)
-	data.Weight   = wasmtypes.Uint64Decode(dec)
 	dec.Close()
 	return data
 }
 
 func (o *FracComposition) Bytes() []byte {
 	enc := wasmtypes.NewWasmEncoder()
+		wasmtypes.Uint64Encode(enc, o.Mass)
 		wasmtypes.StringEncode(enc, o.Material)
-		wasmtypes.Uint64Encode(enc, o.Weight)
 	return enc.Buf()
 }
 
@@ -192,13 +192,13 @@ type ProductPass struct {
 	Name                     string 
 	PackageWeight            uint64 
 	PackagesAlreadyPaid      uint64 
+	PackagesNumber           uint64 
 	PackagesSorted           uint64 
 	PackagesWrongSorted      uint64 
 	Purpose                  string  //e.g. food, hygiene, others
 	RecyclateShare           uint8 
 	RewardPerPackageProducer uint64 
 	RewardPerPackageRecycler uint64 
-	TotalPackages            uint64 
 	Version                  uint8 
 }
 
@@ -216,13 +216,13 @@ func NewProductPassFromBytes(buf []byte) *ProductPass {
 	data.Name                     = wasmtypes.StringDecode(dec)
 	data.PackageWeight            = wasmtypes.Uint64Decode(dec)
 	data.PackagesAlreadyPaid      = wasmtypes.Uint64Decode(dec)
+	data.PackagesNumber           = wasmtypes.Uint64Decode(dec)
 	data.PackagesSorted           = wasmtypes.Uint64Decode(dec)
 	data.PackagesWrongSorted      = wasmtypes.Uint64Decode(dec)
 	data.Purpose                  = wasmtypes.StringDecode(dec)
 	data.RecyclateShare           = wasmtypes.Uint8Decode(dec)
 	data.RewardPerPackageProducer = wasmtypes.Uint64Decode(dec)
 	data.RewardPerPackageRecycler = wasmtypes.Uint64Decode(dec)
-	data.TotalPackages            = wasmtypes.Uint64Decode(dec)
 	data.Version                  = wasmtypes.Uint8Decode(dec)
 	dec.Close()
 	return data
@@ -241,13 +241,13 @@ func (o *ProductPass) Bytes() []byte {
 		wasmtypes.StringEncode(enc, o.Name)
 		wasmtypes.Uint64Encode(enc, o.PackageWeight)
 		wasmtypes.Uint64Encode(enc, o.PackagesAlreadyPaid)
+		wasmtypes.Uint64Encode(enc, o.PackagesNumber)
 		wasmtypes.Uint64Encode(enc, o.PackagesSorted)
 		wasmtypes.Uint64Encode(enc, o.PackagesWrongSorted)
 		wasmtypes.StringEncode(enc, o.Purpose)
 		wasmtypes.Uint8Encode(enc, o.RecyclateShare)
 		wasmtypes.Uint64Encode(enc, o.RewardPerPackageProducer)
 		wasmtypes.Uint64Encode(enc, o.RewardPerPackageRecycler)
-		wasmtypes.Uint64Encode(enc, o.TotalPackages)
 		wasmtypes.Uint8Encode(enc, o.Version)
 	return enc.Buf()
 }
@@ -285,23 +285,23 @@ func (o MutableProductPass) Value() *ProductPass {
 }
 
 type RecyComposition struct {
+	Mass     uint64  //in mg
 	Material string 
-	Weight   uint64  //in mg
 }
 
 func NewRecyCompositionFromBytes(buf []byte) *RecyComposition {
 	dec := wasmtypes.NewWasmDecoder(buf)
 	data := &RecyComposition{}
+	data.Mass     = wasmtypes.Uint64Decode(dec)
 	data.Material = wasmtypes.StringDecode(dec)
-	data.Weight   = wasmtypes.Uint64Decode(dec)
 	dec.Close()
 	return data
 }
 
 func (o *RecyComposition) Bytes() []byte {
 	enc := wasmtypes.NewWasmEncoder()
+		wasmtypes.Uint64Encode(enc, o.Mass)
 		wasmtypes.StringEncode(enc, o.Material)
-		wasmtypes.Uint64Encode(enc, o.Weight)
 	return enc.Buf()
 }
 

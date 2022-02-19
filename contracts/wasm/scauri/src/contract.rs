@@ -16,6 +16,16 @@ pub struct AddPPToFractionCall {
 	pub results: ImmutableAddPPToFractionResults,
 }
 
+pub struct AddRecyclerCall {
+	pub func: ScFunc,
+	pub params: MutableAddRecyclerParams,
+}
+
+pub struct AddSorterCall {
+	pub func: ScFunc,
+	pub params: MutableAddSorterParams,
+}
+
 pub struct CreateFractionCall {
 	pub func: ScFunc,
 	pub params: MutableCreateFractionParams,
@@ -50,11 +60,6 @@ pub struct PayoutProducerCall {
 	pub params: MutablePayoutProducerParams,
 }
 
-pub struct SetMaterialsCall {
-	pub func: ScFunc,
-	pub params: MutableSetMaterialsParams,
-}
-
 pub struct SetOwnerCall {
 	pub func: ScFunc,
 	pub params: MutableSetOwnerParams,
@@ -64,6 +69,12 @@ pub struct GetAmountOfRequiredFundsCall {
 	pub func: ScView,
 	pub params: MutableGetAmountOfRequiredFundsParams,
 	pub results: ImmutableGetAmountOfRequiredFundsResults,
+}
+
+pub struct GetFractionCall {
+	pub func: ScView,
+	pub params: MutableGetFractionParams,
+	pub results: ImmutableGetFractionResults,
 }
 
 pub struct GetMaterialsCall {
@@ -81,6 +92,12 @@ pub struct GetPPCall {
 	pub func: ScView,
 	pub params: MutableGetPPParams,
 	pub results: ImmutableGetPPResults,
+}
+
+pub struct GetRecyclateCall {
+	pub func: ScView,
+	pub params: MutableGetRecyclateParams,
+	pub results: ImmutableGetRecyclateResults,
 }
 
 pub struct GetTokenPerPackageCall {
@@ -101,6 +118,24 @@ impl ScFuncs {
         };
         ScFunc::link_params(&mut f.params.proxy, &f.func);
         ScFunc::link_results(&mut f.results.proxy, &f.func);
+        f
+    }
+
+    pub fn add_recycler(_ctx: &dyn ScFuncCallContext) -> AddRecyclerCall {
+        let mut f = AddRecyclerCall {
+            func: ScFunc::new(HSC_NAME, HFUNC_ADD_RECYCLER),
+            params: MutableAddRecyclerParams { proxy: Proxy::nil() },
+        };
+        ScFunc::link_params(&mut f.params.proxy, &f.func);
+        f
+    }
+
+    pub fn add_sorter(_ctx: &dyn ScFuncCallContext) -> AddSorterCall {
+        let mut f = AddSorterCall {
+            func: ScFunc::new(HSC_NAME, HFUNC_ADD_SORTER),
+            params: MutableAddSorterParams { proxy: Proxy::nil() },
+        };
+        ScFunc::link_params(&mut f.params.proxy, &f.func);
         f
     }
 
@@ -166,15 +201,6 @@ impl ScFuncs {
         f
     }
 
-    pub fn set_materials(_ctx: &dyn ScFuncCallContext) -> SetMaterialsCall {
-        let mut f = SetMaterialsCall {
-            func: ScFunc::new(HSC_NAME, HFUNC_SET_MATERIALS),
-            params: MutableSetMaterialsParams { proxy: Proxy::nil() },
-        };
-        ScFunc::link_params(&mut f.params.proxy, &f.func);
-        f
-    }
-
     pub fn set_owner(_ctx: &dyn ScFuncCallContext) -> SetOwnerCall {
         let mut f = SetOwnerCall {
             func: ScFunc::new(HSC_NAME, HFUNC_SET_OWNER),
@@ -189,6 +215,17 @@ impl ScFuncs {
             func: ScView::new(HSC_NAME, HVIEW_GET_AMOUNT_OF_REQUIRED_FUNDS),
             params: MutableGetAmountOfRequiredFundsParams { proxy: Proxy::nil() },
             results: ImmutableGetAmountOfRequiredFundsResults { proxy: Proxy::nil() },
+        };
+        ScView::link_params(&mut f.params.proxy, &f.func);
+        ScView::link_results(&mut f.results.proxy, &f.func);
+        f
+    }
+
+    pub fn get_fraction(_ctx: &dyn ScViewCallContext) -> GetFractionCall {
+        let mut f = GetFractionCall {
+            func: ScView::new(HSC_NAME, HVIEW_GET_FRACTION),
+            params: MutableGetFractionParams { proxy: Proxy::nil() },
+            results: ImmutableGetFractionResults { proxy: Proxy::nil() },
         };
         ScView::link_params(&mut f.params.proxy, &f.func);
         ScView::link_results(&mut f.results.proxy, &f.func);
@@ -220,6 +257,17 @@ impl ScFuncs {
             func: ScView::new(HSC_NAME, HVIEW_GET_PP),
             params: MutableGetPPParams { proxy: Proxy::nil() },
             results: ImmutableGetPPResults { proxy: Proxy::nil() },
+        };
+        ScView::link_params(&mut f.params.proxy, &f.func);
+        ScView::link_results(&mut f.results.proxy, &f.func);
+        f
+    }
+
+    pub fn get_recyclate(_ctx: &dyn ScViewCallContext) -> GetRecyclateCall {
+        let mut f = GetRecyclateCall {
+            func: ScView::new(HSC_NAME, HVIEW_GET_RECYCLATE),
+            params: MutableGetRecyclateParams { proxy: Proxy::nil() },
+            results: ImmutableGetRecyclateResults { proxy: Proxy::nil() },
         };
         ScView::link_params(&mut f.params.proxy, &f.func);
         ScView::link_results(&mut f.results.proxy, &f.func);

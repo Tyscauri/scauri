@@ -79,6 +79,21 @@ impl MapHashToImmutableRecyclate {
 }
 
 #[derive(Clone)]
+pub struct ArrayOfImmutableAgentID {
+	pub(crate) proxy: Proxy,
+}
+
+impl ArrayOfImmutableAgentID {
+    pub fn length(&self) -> u32 {
+        self.proxy.length()
+    }
+
+    pub fn get_agent_id(&self, index: u32) -> ScImmutableAgentID {
+        ScImmutableAgentID::new(self.proxy.index(index))
+    }
+}
+
+#[derive(Clone)]
 pub struct ImmutablescauriState {
 	pub(crate) proxy: Proxy,
 }
@@ -120,8 +135,16 @@ impl ImmutablescauriState {
 		MapHashToImmutableRecyclate { proxy: self.proxy.root(STATE_RECYCLATES) }
 	}
 
+    pub fn recyclers(&self) -> ArrayOfImmutableAgentID {
+		ArrayOfImmutableAgentID { proxy: self.proxy.root(STATE_RECYCLERS) }
+	}
+
     pub fn share_recycler(&self) -> ScImmutableUint8 {
 		ScImmutableUint8::new(self.proxy.root(STATE_SHARE_RECYCLER))
+	}
+
+    pub fn sorters(&self) -> ArrayOfImmutableAgentID {
+		ArrayOfImmutableAgentID { proxy: self.proxy.root(STATE_SORTERS) }
 	}
 
     pub fn token_to_donate(&self) -> ScImmutableUint64 {
@@ -220,6 +243,29 @@ impl MapHashToMutableRecyclate {
 }
 
 #[derive(Clone)]
+pub struct ArrayOfMutableAgentID {
+	pub(crate) proxy: Proxy,
+}
+
+impl ArrayOfMutableAgentID {
+	pub fn append_agent_id(&self) -> ScMutableAgentID {
+		ScMutableAgentID::new(self.proxy.append())
+	}
+
+	pub fn clear(&self) {
+        self.proxy.clear_array();
+    }
+
+    pub fn length(&self) -> u32 {
+        self.proxy.length()
+    }
+
+    pub fn get_agent_id(&self, index: u32) -> ScMutableAgentID {
+        ScMutableAgentID::new(self.proxy.index(index))
+    }
+}
+
+#[derive(Clone)]
 pub struct MutablescauriState {
 	pub(crate) proxy: Proxy,
 }
@@ -265,8 +311,16 @@ impl MutablescauriState {
 		MapHashToMutableRecyclate { proxy: self.proxy.root(STATE_RECYCLATES) }
 	}
 
+    pub fn recyclers(&self) -> ArrayOfMutableAgentID {
+		ArrayOfMutableAgentID { proxy: self.proxy.root(STATE_RECYCLERS) }
+	}
+
     pub fn share_recycler(&self) -> ScMutableUint8 {
 		ScMutableUint8::new(self.proxy.root(STATE_SHARE_RECYCLER))
+	}
+
+    pub fn sorters(&self) -> ArrayOfMutableAgentID {
+		ArrayOfMutableAgentID { proxy: self.proxy.root(STATE_SORTERS) }
 	}
 
     pub fn token_to_donate(&self) -> ScMutableUint64 {

@@ -8,6 +8,12 @@ import "github.com/iotaledger/wasp/packages/wasmvm/wasmlib/go/wasmlib"
 func funcAddPPToFraction(ctx wasmlib.ScFuncContext, f *AddPPToFractionContext) {
 }
 
+func funcAddRecycler(ctx wasmlib.ScFuncContext, f *AddRecyclerContext) {
+}
+
+func funcAddSorter(ctx wasmlib.ScFuncContext, f *AddSorterContext) {
+}
+
 func funcCreateFraction(ctx wasmlib.ScFuncContext, f *CreateFractionContext) {
 }
 
@@ -31,14 +37,14 @@ func funcInit(ctx wasmlib.ScFuncContext, f *InitContext) {
 func funcPayoutProducer(ctx wasmlib.ScFuncContext, f *PayoutProducerContext) {
 }
 
-func funcSetMaterials(ctx wasmlib.ScFuncContext, f *SetMaterialsContext) {
-}
-
 func funcSetOwner(ctx wasmlib.ScFuncContext, f *SetOwnerContext) {
 	f.State.Owner().SetValue(f.Params.Owner().Value())
 }
 
 func viewGetAmountOfRequiredFunds(ctx wasmlib.ScViewContext, f *GetAmountOfRequiredFundsContext) {
+}
+
+func viewGetFraction(ctx wasmlib.ScViewContext, f *GetFractionContext) {
 }
 
 func viewGetMaterials(ctx wasmlib.ScViewContext, f *GetMaterialsContext) {
@@ -49,6 +55,9 @@ func viewGetOwner(ctx wasmlib.ScViewContext, f *GetOwnerContext) {
 }
 
 func viewGetPP(ctx wasmlib.ScViewContext, f *GetPPContext) {
+}
+
+func viewGetRecyclate(ctx wasmlib.ScViewContext, f *GetRecyclateContext) {
 }
 
 func viewGetTokenPerPackage(ctx wasmlib.ScViewContext, f *GetTokenPerPackageContext) {

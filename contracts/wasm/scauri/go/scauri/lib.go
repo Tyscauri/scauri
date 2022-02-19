@@ -13,36 +13,42 @@ import "github.com/iotaledger/wasp/packages/wasmvm/wasmlib/go/wasmlib"
 var exportMap = wasmlib.ScExportMap{
 	Names: []string{
     	FuncAddPPToFraction,
+    	FuncAddRecycler,
+    	FuncAddSorter,
     	FuncCreateFraction,
     	FuncCreatePP,
     	FuncCreateRecyclate,
     	FuncDeletePP,
     	FuncInit,
     	FuncPayoutProducer,
-    	FuncSetMaterials,
     	FuncSetOwner,
     	ViewGetAmountOfRequiredFunds,
+    	ViewGetFraction,
     	ViewGetMaterials,
     	ViewGetOwner,
     	ViewGetPP,
+    	ViewGetRecyclate,
     	ViewGetTokenPerPackage,
 	},
 	Funcs: []wasmlib.ScFuncContextFunction{
     	funcAddPPToFractionThunk,
+    	funcAddRecyclerThunk,
+    	funcAddSorterThunk,
     	funcCreateFractionThunk,
     	funcCreatePPThunk,
     	funcCreateRecyclateThunk,
     	funcDeletePPThunk,
     	funcInitThunk,
     	funcPayoutProducerThunk,
-    	funcSetMaterialsThunk,
     	funcSetOwnerThunk,
 	},
 	Views: []wasmlib.ScViewContextFunction{
     	viewGetAmountOfRequiredFundsThunk,
+    	viewGetFractionThunk,
     	viewGetMaterialsThunk,
     	viewGetOwnerThunk,
     	viewGetPPThunk,
+    	viewGetRecyclateThunk,
     	viewGetTokenPerPackageThunk,
 	},
 }
@@ -81,6 +87,54 @@ func funcAddPPToFractionThunk(ctx wasmlib.ScFuncContext) {
 	funcAddPPToFraction(ctx, f)
 	ctx.Results(results)
 	ctx.Log("scauri.funcAddPPToFraction ok")
+}
+
+type AddRecyclerContext struct {
+	Params  ImmutableAddRecyclerParams
+	State   MutablescauriState
+}
+
+func funcAddRecyclerThunk(ctx wasmlib.ScFuncContext) {
+	ctx.Log("scauri.funcAddRecycler")
+	f := &AddRecyclerContext{
+		Params: ImmutableAddRecyclerParams{
+			proxy: wasmlib.NewParamsProxy(),
+		},
+		State: MutablescauriState{
+			proxy: wasmlib.NewStateProxy(),
+		},
+	}
+	access := f.State.Owner()
+	ctx.Require(access.Exists(), "access not set: owner")
+	ctx.Require(ctx.Caller() == access.Value(), "no permission")
+
+	ctx.Require(f.Params.RecyclerID().Exists(), "missing mandatory recyclerID")
+	funcAddRecycler(ctx, f)
+	ctx.Log("scauri.funcAddRecycler ok")
+}
+
+type AddSorterContext struct {
+	Params  ImmutableAddSorterParams
+	State   MutablescauriState
+}
+
+func funcAddSorterThunk(ctx wasmlib.ScFuncContext) {
+	ctx.Log("scauri.funcAddSorter")
+	f := &AddSorterContext{
+		Params: ImmutableAddSorterParams{
+			proxy: wasmlib.NewParamsProxy(),
+		},
+		State: MutablescauriState{
+			proxy: wasmlib.NewStateProxy(),
+		},
+	}
+	access := f.State.Owner()
+	ctx.Require(access.Exists(), "access not set: owner")
+	ctx.Require(ctx.Caller() == access.Value(), "no permission")
+
+	ctx.Require(f.Params.SorterID().Exists(), "missing mandatory sorterID")
+	funcAddSorter(ctx, f)
+	ctx.Log("scauri.funcAddSorter ok")
 }
 
 type CreateFractionContext struct {
@@ -131,6 +185,8 @@ func funcCreatePPThunk(ctx wasmlib.ScFuncContext) {
 	}
 	ctx.Require(f.Params.ExpiryDate().Exists(), "missing mandatory expiryDate")
 	ctx.Require(f.Params.Name().Exists(), "missing mandatory name")
+	ctx.Require(f.Params.PackageWeight().Exists(), "missing mandatory packageWeight")
+	ctx.Require(f.Params.PackagesNumber().Exists(), "missing mandatory packagesNumber")
 	ctx.Require(f.Params.Purpose().Exists(), "missing mandatory purpose")
 	ctx.Require(f.Params.RecyclateShare().Exists(), "missing mandatory recyclateShare")
 	funcCreatePP(ctx, f)
@@ -229,26 +285,6 @@ func funcPayoutProducerThunk(ctx wasmlib.ScFuncContext) {
 	ctx.Log("scauri.funcPayoutProducer ok")
 }
 
-type SetMaterialsContext struct {
-	Params  ImmutableSetMaterialsParams
-	State   MutablescauriState
-}
-
-func funcSetMaterialsThunk(ctx wasmlib.ScFuncContext) {
-	ctx.Log("scauri.funcSetMaterials")
-	f := &SetMaterialsContext{
-		Params: ImmutableSetMaterialsParams{
-			proxy: wasmlib.NewParamsProxy(),
-		},
-		State: MutablescauriState{
-			proxy: wasmlib.NewStateProxy(),
-		},
-	}
-	ctx.Require(f.Params.Id().Exists(), "missing mandatory id")
-	funcSetMaterials(ctx, f)
-	ctx.Log("scauri.funcSetMaterials ok")
-}
-
 type SetOwnerContext struct {
 	Params  ImmutableSetOwnerParams
 	State   MutablescauriState
@@ -299,6 +335,32 @@ func viewGetAmountOfRequiredFundsThunk(ctx wasmlib.ScViewContext) {
 	viewGetAmountOfRequiredFunds(ctx, f)
 	ctx.Results(results)
 	ctx.Log("scauri.viewGetAmountOfRequiredFunds ok")
+}
+
+type GetFractionContext struct {
+	Params  ImmutableGetFractionParams
+	Results MutableGetFractionResults
+	State   ImmutablescauriState
+}
+
+func viewGetFractionThunk(ctx wasmlib.ScViewContext) {
+	ctx.Log("scauri.viewGetFraction")
+	results := wasmlib.NewScDict()
+	f := &GetFractionContext{
+		Params: ImmutableGetFractionParams{
+			proxy: wasmlib.NewParamsProxy(),
+		},
+		Results: MutableGetFractionResults{
+			proxy: results.AsProxy(),
+		},
+		State: ImmutablescauriState{
+			proxy: wasmlib.NewStateProxy(),
+		},
+	}
+	ctx.Require(f.Params.FracID().Exists(), "missing mandatory fracID")
+	viewGetFraction(ctx, f)
+	ctx.Results(results)
+	ctx.Log("scauri.viewGetFraction ok")
 }
 
 type GetMaterialsContext struct {
@@ -372,6 +434,32 @@ func viewGetPPThunk(ctx wasmlib.ScViewContext) {
 	viewGetPP(ctx, f)
 	ctx.Results(results)
 	ctx.Log("scauri.viewGetPP ok")
+}
+
+type GetRecyclateContext struct {
+	Params  ImmutableGetRecyclateParams
+	Results MutableGetRecyclateResults
+	State   ImmutablescauriState
+}
+
+func viewGetRecyclateThunk(ctx wasmlib.ScViewContext) {
+	ctx.Log("scauri.viewGetRecyclate")
+	results := wasmlib.NewScDict()
+	f := &GetRecyclateContext{
+		Params: ImmutableGetRecyclateParams{
+			proxy: wasmlib.NewParamsProxy(),
+		},
+		Results: MutableGetRecyclateResults{
+			proxy: results.AsProxy(),
+		},
+		State: ImmutablescauriState{
+			proxy: wasmlib.NewStateProxy(),
+		},
+	}
+	ctx.Require(f.Params.RecyID().Exists(), "missing mandatory recyID")
+	viewGetRecyclate(ctx, f)
+	ctx.Results(results)
+	ctx.Log("scauri.viewGetRecyclate ok")
 }
 
 type GetTokenPerPackageContext struct {

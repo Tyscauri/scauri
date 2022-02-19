@@ -31,36 +31,42 @@ mod scauri;
 const EXPORT_MAP: ScExportMap = ScExportMap {
     names: &[
     	FUNC_ADD_PP_TO_FRACTION,
+    	FUNC_ADD_RECYCLER,
+    	FUNC_ADD_SORTER,
     	FUNC_CREATE_FRACTION,
     	FUNC_CREATE_PP,
     	FUNC_CREATE_RECYCLATE,
     	FUNC_DELETE_PP,
     	FUNC_INIT,
     	FUNC_PAYOUT_PRODUCER,
-    	FUNC_SET_MATERIALS,
     	FUNC_SET_OWNER,
     	VIEW_GET_AMOUNT_OF_REQUIRED_FUNDS,
+    	VIEW_GET_FRACTION,
     	VIEW_GET_MATERIALS,
     	VIEW_GET_OWNER,
     	VIEW_GET_PP,
+    	VIEW_GET_RECYCLATE,
     	VIEW_GET_TOKEN_PER_PACKAGE,
 	],
     funcs: &[
     	func_add_pp_to_fraction_thunk,
+    	func_add_recycler_thunk,
+    	func_add_sorter_thunk,
     	func_create_fraction_thunk,
     	func_create_pp_thunk,
     	func_create_recyclate_thunk,
     	func_delete_pp_thunk,
     	func_init_thunk,
     	func_payout_producer_thunk,
-    	func_set_materials_thunk,
     	func_set_owner_thunk,
 	],
     views: &[
     	view_get_amount_of_required_funds_thunk,
+    	view_get_fraction_thunk,
     	view_get_materials_thunk,
     	view_get_owner_thunk,
     	view_get_pp_thunk,
+    	view_get_recyclate_thunk,
     	view_get_token_per_package_thunk,
 	],
 };
@@ -93,6 +99,46 @@ fn func_add_pp_to_fraction_thunk(ctx: &ScFuncContext) {
 	func_add_pp_to_fraction(ctx, &f);
 	ctx.results(&f.results.proxy.kv_store);
 	ctx.log("scauri.funcAddPPToFraction ok");
+}
+
+pub struct AddRecyclerContext {
+	params: ImmutableAddRecyclerParams,
+	state: MutablescauriState,
+}
+
+fn func_add_recycler_thunk(ctx: &ScFuncContext) {
+	ctx.log("scauri.funcAddRecycler");
+	let f = AddRecyclerContext {
+		params: ImmutableAddRecyclerParams { proxy: params_proxy() },
+		state: MutablescauriState { proxy: state_proxy() },
+	};
+	let access = f.state.owner();
+	ctx.require(access.exists(), "access not set: owner");
+	ctx.require(ctx.caller() == access.value(), "no permission");
+
+	ctx.require(f.params.recycler_id().exists(), "missing mandatory recyclerID");
+	func_add_recycler(ctx, &f);
+	ctx.log("scauri.funcAddRecycler ok");
+}
+
+pub struct AddSorterContext {
+	params: ImmutableAddSorterParams,
+	state: MutablescauriState,
+}
+
+fn func_add_sorter_thunk(ctx: &ScFuncContext) {
+	ctx.log("scauri.funcAddSorter");
+	let f = AddSorterContext {
+		params: ImmutableAddSorterParams { proxy: params_proxy() },
+		state: MutablescauriState { proxy: state_proxy() },
+	};
+	let access = f.state.owner();
+	ctx.require(access.exists(), "access not set: owner");
+	ctx.require(ctx.caller() == access.value(), "no permission");
+
+	ctx.require(f.params.sorter_id().exists(), "missing mandatory sorterID");
+	func_add_sorter(ctx, &f);
+	ctx.log("scauri.funcAddSorter ok");
 }
 
 pub struct CreateFractionContext {
@@ -129,6 +175,8 @@ fn func_create_pp_thunk(ctx: &ScFuncContext) {
 	};
 	ctx.require(f.params.expiry_date().exists(), "missing mandatory expiryDate");
 	ctx.require(f.params.name().exists(), "missing mandatory name");
+	ctx.require(f.params.package_weight().exists(), "missing mandatory packageWeight");
+	ctx.require(f.params.packages_number().exists(), "missing mandatory packagesNumber");
 	ctx.require(f.params.purpose().exists(), "missing mandatory purpose");
 	ctx.require(f.params.recyclate_share().exists(), "missing mandatory recyclateShare");
 	func_create_pp(ctx, &f);
@@ -205,22 +253,6 @@ fn func_payout_producer_thunk(ctx: &ScFuncContext) {
 	ctx.log("scauri.funcPayoutProducer ok");
 }
 
-pub struct SetMaterialsContext {
-	params: ImmutableSetMaterialsParams,
-	state: MutablescauriState,
-}
-
-fn func_set_materials_thunk(ctx: &ScFuncContext) {
-	ctx.log("scauri.funcSetMaterials");
-	let f = SetMaterialsContext {
-		params: ImmutableSetMaterialsParams { proxy: params_proxy() },
-		state: MutablescauriState { proxy: state_proxy() },
-	};
-	ctx.require(f.params.id().exists(), "missing mandatory id");
-	func_set_materials(ctx, &f);
-	ctx.log("scauri.funcSetMaterials ok");
-}
-
 pub struct SetOwnerContext {
 	params: ImmutableSetOwnerParams,
 	state: MutablescauriState,
@@ -260,6 +292,25 @@ fn view_get_amount_of_required_funds_thunk(ctx: &ScViewContext) {
 	view_get_amount_of_required_funds(ctx, &f);
 	ctx.results(&f.results.proxy.kv_store);
 	ctx.log("scauri.viewGetAmountOfRequiredFunds ok");
+}
+
+pub struct GetFractionContext {
+	params: ImmutableGetFractionParams,
+	results: MutableGetFractionResults,
+	state: ImmutablescauriState,
+}
+
+fn view_get_fraction_thunk(ctx: &ScViewContext) {
+	ctx.log("scauri.viewGetFraction");
+	let f = GetFractionContext {
+		params: ImmutableGetFractionParams { proxy: params_proxy() },
+		results: MutableGetFractionResults { proxy: results_proxy() },
+		state: ImmutablescauriState { proxy: state_proxy() },
+	};
+	ctx.require(f.params.frac_id().exists(), "missing mandatory fracID");
+	view_get_fraction(ctx, &f);
+	ctx.results(&f.results.proxy.kv_store);
+	ctx.log("scauri.viewGetFraction ok");
 }
 
 pub struct GetMaterialsContext {
@@ -314,6 +365,25 @@ fn view_get_pp_thunk(ctx: &ScViewContext) {
 	view_get_pp(ctx, &f);
 	ctx.results(&f.results.proxy.kv_store);
 	ctx.log("scauri.viewGetPP ok");
+}
+
+pub struct GetRecyclateContext {
+	params: ImmutableGetRecyclateParams,
+	results: MutableGetRecyclateResults,
+	state: ImmutablescauriState,
+}
+
+fn view_get_recyclate_thunk(ctx: &ScViewContext) {
+	ctx.log("scauri.viewGetRecyclate");
+	let f = GetRecyclateContext {
+		params: ImmutableGetRecyclateParams { proxy: params_proxy() },
+		results: MutableGetRecyclateResults { proxy: results_proxy() },
+		state: ImmutablescauriState { proxy: state_proxy() },
+	};
+	ctx.require(f.params.recy_id().exists(), "missing mandatory recyID");
+	view_get_recyclate(ctx, &f);
+	ctx.results(&f.results.proxy.kv_store);
+	ctx.log("scauri.viewGetRecyclate ok");
 }
 
 pub struct GetTokenPerPackageContext {
