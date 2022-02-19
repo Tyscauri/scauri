@@ -73,8 +73,8 @@ func (s ImmutableCreateRecyclateResults) Fraction() ImmutableFraction {
 	return ImmutableFraction{proxy: s.proxy.Root(ResultFraction)}
 }
 
-func (s ImmutableCreateRecyclateResults) RecyclateID() wasmtypes.ScImmutableHash {
-	return wasmtypes.NewScImmutableHash(s.proxy.Root(ResultRecyclateID))
+func (s ImmutableCreateRecyclateResults) RecyID() wasmtypes.ScImmutableHash {
+	return wasmtypes.NewScImmutableHash(s.proxy.Root(ResultRecyID))
 }
 
 type MutableCreateRecyclateResults struct {
@@ -85,8 +85,8 @@ func (s MutableCreateRecyclateResults) Fraction() MutableFraction {
 	return MutableFraction{proxy: s.proxy.Root(ResultFraction)}
 }
 
-func (s MutableCreateRecyclateResults) RecyclateID() wasmtypes.ScMutableHash {
-	return wasmtypes.NewScMutableHash(s.proxy.Root(ResultRecyclateID))
+func (s MutableCreateRecyclateResults) RecyID() wasmtypes.ScMutableHash {
+	return wasmtypes.NewScMutableHash(s.proxy.Root(ResultRecyID))
 }
 
 type ImmutableDeletePPResults struct {

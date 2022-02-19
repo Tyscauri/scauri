@@ -105,9 +105,17 @@ pub fn func_create_pp(ctx: &ScFuncContext, f: &CreatePPContext) {
     
     composition.clear();
     
+    let mut weightTester: u64 = 0;
 
     for i in 0 .. newComps.length() {
-        composition.append_composition().set_value(&newComps.get_composition(i).value());
+
+        let currentComp = newComps.get_composition(i).value();
+        composition.append_composition().set_value(&currentComp);
+        weightTester += currentComp.mass;
+    }
+
+    if weightTester != ppNew.package_weight {
+        ctx.panic(&format!("Composition of package does not add up to the package weight. Package weight stated is '{weightStated}', but sums up to '{testedWeight}'. Are you missing some materials?", weightStated = ppNew.package_weight, testedWeight = weightTester))
     }
 
 }
@@ -243,6 +251,7 @@ pub fn func_add_pp_to_fraction(ctx: &ScFuncContext, f: &AddPPToFractionContext) 
     //organize money distribution
     //note that tracking packages which have been sorted to a fraction with the same purpose is basis for releasing funds
     if pp.purpose == frac_proxy.value().purpose {
+        
         pp_proxy.value().packages_sorted = &pp.packages_sorted +1;
         frac_proxy.value().amount += &pp.reward_per_package_recycler;
     }
@@ -321,7 +330,7 @@ pub fn func_create_recyclate(ctx: &ScFuncContext, f: &CreateRecyclateContext) {
     f.state.fractions().get_fraction(&newRecy.frac_id).delete();
     f.state.frac_compositions().get_frac_compositions(&newRecy.frac_id).clear();
 
-    f.results.recyclate_id().set_value(&newRecy.recy_id);
+    f.results.recy_id().set_value(&newRecy.recy_id);
 
 }
 

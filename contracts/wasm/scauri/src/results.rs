@@ -95,8 +95,8 @@ impl ImmutableCreateRecyclateResults {
 		ImmutableFraction { proxy: self.proxy.root(RESULT_FRACTION) }
 	}
 
-    pub fn recyclate_id(&self) -> ScImmutableHash {
-		ScImmutableHash::new(self.proxy.root(RESULT_RECYCLATE_ID))
+    pub fn recy_id(&self) -> ScImmutableHash {
+		ScImmutableHash::new(self.proxy.root(RESULT_RECY_ID))
 	}
 }
 
@@ -110,8 +110,8 @@ impl MutableCreateRecyclateResults {
 		MutableFraction { proxy: self.proxy.root(RESULT_FRACTION) }
 	}
 
-    pub fn recyclate_id(&self) -> ScMutableHash {
-		ScMutableHash::new(self.proxy.root(RESULT_RECYCLATE_ID))
+    pub fn recy_id(&self) -> ScMutableHash {
+		ScMutableHash::new(self.proxy.root(RESULT_RECY_ID))
 	}
 }
 

@@ -40,8 +40,8 @@ pub const RESULT_PP                : &str = "pp";
 pub const RESULT_PPNAME            : &str = "ppname";
 pub const RESULT_PPRESULT          : &str = "ppresult";
 pub const RESULT_RECY_COMPOSITION  : &str = "recyComposition";
+pub const RESULT_RECY_ID           : &str = "recyID";
 pub const RESULT_RECYCLATE         : &str = "recyclate";
-pub const RESULT_RECYCLATE_ID      : &str = "recyclateID";
 pub const RESULT_TOKEN_PER_PACKAGE : &str = "tokenPerPackage";
 pub const RESULT_TOKEN_REQUIRED    : &str = "tokenRequired";
 

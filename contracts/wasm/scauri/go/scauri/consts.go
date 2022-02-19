@@ -45,8 +45,8 @@ const (
 	ResultPpname          = "ppname"
 	ResultPpresult        = "ppresult"
 	ResultRecyComposition = "recyComposition"
+	ResultRecyID          = "recyID"
 	ResultRecyclate       = "recyclate"
-	ResultRecyclateID     = "recyclateID"
 	ResultTokenPerPackage = "tokenPerPackage"
 	ResultTokenRequired   = "tokenRequired"
 )

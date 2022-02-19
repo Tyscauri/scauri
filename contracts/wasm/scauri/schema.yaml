@@ -102,7 +102,7 @@ funcs:
       name: String?
     results:
       fraction: Fraction
-      recyclateID: Hash
+      recyID: Hash
   payoutProducer:
     params:
       fracID: Hash
