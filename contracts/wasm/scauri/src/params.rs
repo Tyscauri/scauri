@@ -257,8 +257,8 @@ pub struct ImmutablePayoutProducerParams {
 }
 
 impl ImmutablePayoutProducerParams {
-    pub fn frac_id(&self) -> ScImmutableHash {
-		ScImmutableHash::new(self.proxy.root(PARAM_FRAC_ID))
+    pub fn pp_id(&self) -> ScImmutableHash {
+		ScImmutableHash::new(self.proxy.root(PARAM_PP_ID))
 	}
 }
 
@@ -268,8 +268,30 @@ pub struct MutablePayoutProducerParams {
 }
 
 impl MutablePayoutProducerParams {
-    pub fn frac_id(&self) -> ScMutableHash {
-		ScMutableHash::new(self.proxy.root(PARAM_FRAC_ID))
+    pub fn pp_id(&self) -> ScMutableHash {
+		ScMutableHash::new(self.proxy.root(PARAM_PP_ID))
+	}
+}
+
+#[derive(Clone)]
+pub struct ImmutableSetDonationAddressParams {
+	pub(crate) proxy: Proxy,
+}
+
+impl ImmutableSetDonationAddressParams {
+    pub fn donation_address(&self) -> ScImmutableAgentID {
+		ScImmutableAgentID::new(self.proxy.root(PARAM_DONATION_ADDRESS))
+	}
+}
+
+#[derive(Clone)]
+pub struct MutableSetDonationAddressParams {
+	pub(crate) proxy: Proxy,
+}
+
+impl MutableSetDonationAddressParams {
+    pub fn donation_address(&self) -> ScMutableAgentID {
+		ScMutableAgentID::new(self.proxy.root(PARAM_DONATION_ADDRESS))
 	}
 }
 

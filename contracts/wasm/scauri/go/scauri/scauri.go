@@ -62,3 +62,6 @@ func viewGetRecyclate(ctx wasmlib.ScViewContext, f *GetRecyclateContext) {
 
 func viewGetTokenPerPackage(ctx wasmlib.ScViewContext, f *GetTokenPerPackageContext) {
 }
+
+func funcSetDonationAddress(ctx wasmlib.ScFuncContext, f *SetDonationAddressContext) {
+}

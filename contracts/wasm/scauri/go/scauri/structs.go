@@ -188,7 +188,6 @@ type ProductPass struct {
 	ExpiryDate               uint64 
 	Id                       wasmtypes.ScHash 
 	Issuer                   wasmtypes.ScAgentID  //packaging producer
-	LastProducerPayout       uint64 
 	Name                     string 
 	PackageWeight            uint64 
 	PackagesAlreadyPaid      uint64 
@@ -211,7 +210,6 @@ func NewProductPassFromBytes(buf []byte) *ProductPass {
 	data.ExpiryDate               = wasmtypes.Uint64Decode(dec)
 	data.Id                       = wasmtypes.HashDecode(dec)
 	data.Issuer                   = wasmtypes.AgentIDDecode(dec)
-	data.LastProducerPayout       = wasmtypes.Uint64Decode(dec)
 	data.Name                     = wasmtypes.StringDecode(dec)
 	data.PackageWeight            = wasmtypes.Uint64Decode(dec)
 	data.PackagesAlreadyPaid      = wasmtypes.Uint64Decode(dec)
@@ -235,7 +233,6 @@ func (o *ProductPass) Bytes() []byte {
 		wasmtypes.Uint64Encode(enc, o.ExpiryDate)
 		wasmtypes.HashEncode(enc, o.Id)
 		wasmtypes.AgentIDEncode(enc, o.Issuer)
-		wasmtypes.Uint64Encode(enc, o.LastProducerPayout)
 		wasmtypes.StringEncode(enc, o.Name)
 		wasmtypes.Uint64Encode(enc, o.PackageWeight)
 		wasmtypes.Uint64Encode(enc, o.PackagesAlreadyPaid)

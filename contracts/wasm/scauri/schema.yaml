@@ -18,7 +18,6 @@ structs:
     amountPerCharge: Uint64
     rewardPerPackageProducer: Uint64
     rewardPerPackageRecycler: Uint64
-    lastProducerPayout: Uint64
     activationDate: Uint64
     expiryDate: Uint64
   Composition:
@@ -80,6 +79,10 @@ funcs:
     access: owner // current owner of this smart contract
     params:
       owner: AgentID // new owner of this smart contract
+  setDonationAddress:
+    access: owner
+    params: 
+      donationAddress: AgentID
   createFraction:
     params:
       name: String?
@@ -102,7 +105,7 @@ funcs:
       recyID: Hash
   payoutProducer:
     params:
-      fracID: Hash
+      ppID: Hash
   deletePP:
     params:
       ppID: Hash

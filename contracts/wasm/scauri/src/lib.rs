@@ -39,6 +39,7 @@ const EXPORT_MAP: ScExportMap = ScExportMap {
     	FUNC_DELETE_PP,
     	FUNC_INIT,
     	FUNC_PAYOUT_PRODUCER,
+    	FUNC_SET_DONATION_ADDRESS,
     	FUNC_SET_OWNER,
     	VIEW_GET_AMOUNT_OF_REQUIRED_FUNDS,
     	VIEW_GET_FRACTION,
@@ -58,6 +59,7 @@ const EXPORT_MAP: ScExportMap = ScExportMap {
     	func_delete_pp_thunk,
     	func_init_thunk,
     	func_payout_producer_thunk,
+    	func_set_donation_address_thunk,
     	func_set_owner_thunk,
 	],
     views: &[
@@ -247,9 +249,29 @@ fn func_payout_producer_thunk(ctx: &ScFuncContext) {
 		params: ImmutablePayoutProducerParams { proxy: params_proxy() },
 		state: MutablescauriState { proxy: state_proxy() },
 	};
-	ctx.require(f.params.frac_id().exists(), "missing mandatory fracID");
+	ctx.require(f.params.pp_id().exists(), "missing mandatory ppID");
 	func_payout_producer(ctx, &f);
 	ctx.log("scauri.funcPayoutProducer ok");
+}
+
+pub struct SetDonationAddressContext {
+	params: ImmutableSetDonationAddressParams,
+	state: MutablescauriState,
+}
+
+fn func_set_donation_address_thunk(ctx: &ScFuncContext) {
+	ctx.log("scauri.funcSetDonationAddress");
+	let f = SetDonationAddressContext {
+		params: ImmutableSetDonationAddressParams { proxy: params_proxy() },
+		state: MutablescauriState { proxy: state_proxy() },
+	};
+	let access = f.state.owner();
+	ctx.require(access.exists(), "access not set: owner");
+	ctx.require(ctx.caller() == access.value(), "no permission");
+
+	ctx.require(f.params.donation_address().exists(), "missing mandatory donationAddress");
+	func_set_donation_address(ctx, &f);
+	ctx.log("scauri.funcSetDonationAddress ok");
 }
 
 pub struct SetOwnerContext {

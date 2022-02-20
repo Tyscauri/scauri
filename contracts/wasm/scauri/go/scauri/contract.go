@@ -59,6 +59,11 @@ type PayoutProducerCall struct {
 	Params  MutablePayoutProducerParams
 }
 
+type SetDonationAddressCall struct {
+	Func    *wasmlib.ScFunc
+	Params  MutableSetDonationAddressParams
+}
+
 type SetOwnerCall struct {
 	Func    *wasmlib.ScFunc
 	Params  MutableSetOwnerParams
@@ -164,6 +169,12 @@ func (sc Funcs) Init(ctx wasmlib.ScFuncCallContext) *InitCall {
 
 func (sc Funcs) PayoutProducer(ctx wasmlib.ScFuncCallContext) *PayoutProducerCall {
 	f := &PayoutProducerCall{Func: wasmlib.NewScFunc(ctx, HScName, HFuncPayoutProducer)}
+	f.Params.proxy = wasmlib.NewCallParamsProxy(&f.Func.ScView)
+	return f
+}
+
+func (sc Funcs) SetDonationAddress(ctx wasmlib.ScFuncCallContext) *SetDonationAddressCall {
+	f := &SetDonationAddressCall{Func: wasmlib.NewScFunc(ctx, HScName, HFuncSetDonationAddress)}
 	f.Params.proxy = wasmlib.NewCallParamsProxy(&f.Func.ScView)
 	return f
 }

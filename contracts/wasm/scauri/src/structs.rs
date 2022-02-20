@@ -214,7 +214,6 @@ pub struct ProductPass {
     pub expiry_date                 : u64, 
     pub id                          : ScHash, 
     pub issuer                      : ScAgentID,  //packaging producer
-    pub last_producer_payout        : u64, 
     pub name                        : String, 
     pub package_weight              : u64, 
     pub packages_already_paid       : u64, 
@@ -238,7 +237,6 @@ impl ProductPass {
             expiry_date                 : uint64_decode(&mut dec),
             id                          : hash_decode(&mut dec),
             issuer                      : agent_id_decode(&mut dec),
-            last_producer_payout        : uint64_decode(&mut dec),
             name                        : string_decode(&mut dec),
             package_weight              : uint64_decode(&mut dec),
             packages_already_paid       : uint64_decode(&mut dec),
@@ -261,7 +259,6 @@ impl ProductPass {
 		uint64_encode(&mut enc, self.expiry_date);
 		hash_encode(&mut enc, &self.id);
 		agent_id_encode(&mut enc, &self.issuer);
-		uint64_encode(&mut enc, self.last_producer_payout);
 		string_encode(&mut enc, &self.name);
 		uint64_encode(&mut enc, self.package_weight);
 		uint64_encode(&mut enc, self.packages_already_paid);

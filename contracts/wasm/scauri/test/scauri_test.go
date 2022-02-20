@@ -59,7 +59,7 @@ func TestSuccessfullRecyclingCircle(t *testing.T) {
 	compositionArray[1] = composition2
 	compositionArray[2] = composition3
 
-	//create single Productpass
+	//PP: Create single Productpass
 	createPP := scauri.ScFuncs.CreatePP(ctx.Sign(ctx.NewSoloAgent())) //for funcs
 	createPP.Params.Name().SetValue("Chips")
 	createPP.Params.Purpose().SetValue("Food")
@@ -79,12 +79,15 @@ func TestSuccessfullRecyclingCircle(t *testing.T) {
 	require.NoError(t, ctx.Err)
 	require.EqualValues(t, "PP", getMat1.Results.Compositions().GetComposition(0).Value().Material)
 
-	// create multiple (numPackageTypes) test productpasses and the storage of their material compositions
 	var keys [numPackageTypes]wasmtypes.ScHash
 
+	var testProducer = ctx.NewSoloAgent()
+	var preBalanceProducer uint64 = testProducer.Balance() - uint64(len(keys))*iotasAddedToCharge // subtraction for the iota transfers afterwards, one for creation and second for getting payoff
+
+	// PP: Create multiple (numPackageTypes) test productpasses and the storage of their material compositions
 	for k := 0; k < len(keys); k++ {
 
-		createPPX := scauri.ScFuncs.CreatePP(ctx.Sign(ctx.NewSoloAgent())) //for funcs
+		createPPX := scauri.ScFuncs.CreatePP(ctx.Sign(testProducer)) //for funcs
 		createPPX.Params.Name().SetValue("tetrapack" + fmt.Sprint(k))
 		createPPX.Params.Purpose().SetValue("Food")
 		createPPX.Params.PackagesNumber().SetValue(packagesPerCharge)
@@ -103,7 +106,7 @@ func TestSuccessfullRecyclingCircle(t *testing.T) {
 
 	}
 
-	//Test Materials set
+	//PP: Test Materials set
 	for k := 0; k < len(keys); k++ {
 		getMatX := scauri.ScFuncs.GetMaterials(ctx)
 		getMatX.Params.Id().SetValue(keys[k])
@@ -117,7 +120,7 @@ func TestSuccessfullRecyclingCircle(t *testing.T) {
 		require.EqualValues(t, hdpeMass, getMatX.Results.Compositions().GetComposition(2).Value().Mass)
 	}
 
-	//fraction test
+	//FRACTION: Testing
 	var testSorter = ctx.NewSoloAgent()
 	addSorter := scauri.ScFuncs.AddSorter(ctx.Sign(owner))
 	addSorter.Params.SorterID().SetValue(testSorter.ScAgentID())
@@ -129,7 +132,7 @@ func TestSuccessfullRecyclingCircle(t *testing.T) {
 	createFraction.Func.TransferIotas(1).Call()
 	var fracID = createFraction.Results.FracID().Value()
 
-	//add 15 packages of each type to a fraction
+	//FRACTION: Add 15 packages of each type to a fraction
 	var numPackages uint64 = 15
 
 	for k := 0; k < len(keys); k++ {
@@ -156,13 +159,13 @@ func TestSuccessfullRecyclingCircle(t *testing.T) {
 	GetFraction.Func.Call()
 	var fracResultsProxy = GetFraction.Results
 
-	//Test fraction properties
+	//FRACTION: Test fraction properties
 	require.EqualValues(t, expectedFraction.FracId, fracResultsProxy.Fraction().Value().FracId)
 	require.EqualValues(t, expectedFraction.Purpose, fracResultsProxy.Fraction().Value().Purpose)
 	require.EqualValues(t, expectedFraction.Issuer, fracResultsProxy.Fraction().Value().Issuer)
 	require.EqualValues(t, expectedFraction.Amount, fracResultsProxy.Fraction().Value().Amount)
 
-	//Test resulting fraction compositions (for PP, PE and HDPE)
+	//FRACTION: Test resulting fraction compositions (for PP, PE and HDPE)
 	var expectedFracCompositon1 *scauri.FracComposition
 	expectedFracCompositon1 = new(scauri.FracComposition)
 	expectedFracCompositon1.Material = "PP"
@@ -193,19 +196,32 @@ func TestSuccessfullRecyclingCircle(t *testing.T) {
 	require.EqualValues(t, expectedFracCompositon3.Mass, fracResultsProxy.FracComposition().GetFracComposition(2).Value().Mass)
 	require.NoError(t, ctx.Err)
 
+	//FRACTION: Test payoffs producer
+	var expectedPayoffProducer uint64 = (iotasAddedToCharge/packagesPerCharge)*25/100*numPackageTypes*numPackages - uint64(len(keys))
+
+	for k := 0; k < len(keys); k++ {
+		payoutProducerX := scauri.ScFuncs.PayoutProducer(ctx.Sign(testProducer))
+		payoutProducerX.Params.PpID().SetValue(keys[k])
+		payoutProducerX.Func.TransferIotas(1).Call()
+	}
+
+	require.EqualValues(t, expectedPayoffProducer, testProducer.Balance()-preBalanceProducer)
+
 	var testRecycler = ctx.NewSoloAgent()
 	addRecycler := scauri.ScFuncs.AddRecycler(ctx.Sign(owner))
 	addRecycler.Params.RecyclerID().SetValue(testRecycler.ScAgentID())
 	addRecycler.Func.TransferIotas(1).Call()
 
+	//RECYCLATE: Test recyclate
 	var preBalanceRecycler uint64 = testRecycler.Balance() - 1 //-1 for the func call afterwards
-	//test recyclate
+
 	createRecyclate := scauri.ScFuncs.CreateRecyclate(ctx.Sign(testRecycler))
 	createRecyclate.Params.FracID().SetValue(fracID)
 	createRecyclate.Params.Name().SetValue("TestRecyclate")
 	createRecyclate.Func.TransferIotas(1).Call()
 	var recyID = createRecyclate.Results.RecyID().Value()
 
+	//RECYCLATE: Test recyclate properties
 	var expectedRecyclate *scauri.Recyclate
 	expectedRecyclate = new(scauri.Recyclate)
 	expectedRecyclate.RecyId = recyID
@@ -214,10 +230,6 @@ func TestSuccessfullRecyclingCircle(t *testing.T) {
 	expectedRecyclate.Name = "TestRecyclate"
 	expectedRecyclate.Purpose = "Food"
 	expectedRecyclate.Issuer = testRecycler.ScAgentID()
-
-	var expectedPayoffRecycler uint64 = expectedFraction.Amount
-	fmt.Println("expectedPayoff: " + fmt.Sprint(expectedPayoffRecycler))
-	fmt.Println("RecyclerBalance: " + fmt.Sprint(testRecycler.Balance()-preBalanceRecycler))
 
 	GetRecyclate := scauri.ScFuncs.GetRecyclate(ctx)
 	GetRecyclate.Params.RecyID().SetValue(recyID)
@@ -228,9 +240,8 @@ func TestSuccessfullRecyclingCircle(t *testing.T) {
 	require.EqualValues(t, expectedRecyclate.FracId, recyResultsProxy.Recyclate().Value().FracId)
 	require.EqualValues(t, expectedRecyclate.Purpose, recyResultsProxy.Recyclate().Value().Purpose)
 	require.EqualValues(t, expectedRecyclate.Issuer, recyResultsProxy.Recyclate().Value().Issuer)
-	require.EqualValues(t, expectedPayoffRecycler, testRecycler.Balance()-preBalanceRecycler)
 
-	//Test resulting recycling compositions (for PP, PE and HDPE). Should be the same as for the fraction
+	//RECYCLATE: Test resulting recycling compositions (for PP, PE and HDPE). Should be the same as for the fraction
 	require.True(t, GetRecyclate.Results.RecyComposition().GetRecyComposition(0).Exists())
 	require.EqualValues(t, expectedFracCompositon1.Material, recyResultsProxy.RecyComposition().GetRecyComposition(0).Value().Material)
 	require.EqualValues(t, expectedFracCompositon1.Mass, recyResultsProxy.RecyComposition().GetRecyComposition(0).Value().Mass)
@@ -245,12 +256,16 @@ func TestSuccessfullRecyclingCircle(t *testing.T) {
 	require.EqualValues(t, expectedFracCompositon3.Material, recyResultsProxy.RecyComposition().GetRecyComposition(2).Value().Material)
 	require.EqualValues(t, expectedFracCompositon3.Mass, recyResultsProxy.RecyComposition().GetRecyComposition(2).Value().Mass)
 	require.NoError(t, ctx.Err)
-	//test money distribution
-	//test deletion
+
+	//RECYCLATE: Test payoff recyclate
+	var expectedPayoffRecycler uint64 = expectedFraction.Amount
+	fmt.Println("expectedPayoff: " + fmt.Sprint(expectedPayoffRecycler))
+	fmt.Println("RecyclerBalance: " + fmt.Sprint(testRecycler.Balance()-preBalanceRecycler))
+	require.EqualValues(t, expectedPayoffRecycler, testRecycler.Balance()-preBalanceRecycler)
+
 	//test access
 }
 
-/*
 func TestUnsuccessfullRecyclingCircle(t *testing.T) {
 
 	ctx := setupTest(t)
@@ -281,12 +296,20 @@ func TestUnsuccessfullRecyclingCircle(t *testing.T) {
 	compositionArray[1] = composition2
 	compositionArray[2] = composition3
 
-	// create multiple (numPackageTypes) test productpasses and the storage of their material compositions
+	//PP: create multiple (numPackageTypes) test productpasses and the storage of their material compositions
 	var keys [numPackageTypes]wasmtypes.ScHash
+	var testProducer = ctx.NewSoloAgent()
+	var testDonationReceiver = ctx.NewSoloAgent()
+
+	setDonationAddress := scauri.ScFuncs.SetDonationAddress(ctx.Sign(owner))
+	setDonationAddress.Params.DonationAddress().SetValue(testDonationReceiver.ScAgentID())
+	setDonationAddress.Func.TransferIotas(1).Call()
+
+	var donPreBalance = testDonationReceiver.Balance()
 
 	for k := 0; k < len(keys); k++ {
 
-		createPPX := scauri.ScFuncs.CreatePP(ctx.Sign(ctx.NewSoloAgent())) //for funcs
+		createPPX := scauri.ScFuncs.CreatePP(ctx.Sign(testProducer))
 		createPPX.Params.Name().SetValue("tetrapack" + fmt.Sprint(k))
 		createPPX.Params.Purpose().SetValue("Food")
 		createPPX.Params.PackagesNumber().SetValue(packagesPerCharge)
@@ -305,7 +328,7 @@ func TestUnsuccessfullRecyclingCircle(t *testing.T) {
 
 	}
 
-	//Test Materials set
+	//PP: Test materials
 	for k := 0; k < len(keys); k++ {
 		getMatX := scauri.ScFuncs.GetMaterials(ctx)
 		getMatX.Params.Id().SetValue(keys[k])
@@ -319,7 +342,7 @@ func TestUnsuccessfullRecyclingCircle(t *testing.T) {
 		require.EqualValues(t, hdpeMass, getMatX.Results.Compositions().GetComposition(2).Value().Mass)
 	}
 
-	//fraction test
+	//FRACTION: Fraction test
 	var testSorter = ctx.NewSoloAgent()
 	addSorter := scauri.ScFuncs.AddSorter(ctx.Sign(owner))
 	addSorter.Params.SorterID().SetValue(testSorter.ScAgentID())
@@ -331,7 +354,7 @@ func TestUnsuccessfullRecyclingCircle(t *testing.T) {
 	createFraction.Func.TransferIotas(1).Call()
 	var fracID = createFraction.Results.FracID().Value()
 
-	//add 15 packages of each type to a fraction
+	//FRACTION: Add 15 packages of each type to a fraction
 	var numPackages uint64 = 15
 
 	for k := 0; k < len(keys); k++ {
@@ -345,7 +368,7 @@ func TestUnsuccessfullRecyclingCircle(t *testing.T) {
 	}
 
 	//create impure Productpass
-	createPP := scauri.ScFuncs.CreatePP(ctx.Sign(ctx.NewSoloAgent())) //for funcs
+	createPP := scauri.ScFuncs.CreatePP(ctx.Sign(testProducer))
 	createPP.Params.Name().SetValue("Chips")
 	createPP.Params.Purpose().SetValue("NuclearWaste")
 	createPP.Params.ExpiryDate().SetValue(uint64(time.Now().Unix()))
@@ -358,11 +381,14 @@ func TestUnsuccessfullRecyclingCircle(t *testing.T) {
 	var id1 = createPP.Results.Id().Value()
 	fmt.Println("id1: " + fmt.Sprint(id1))
 
-	addImpurePP := scauri.ScFuncs.AddPPToFraction(ctx)
+	var preBalanceProducer = testProducer.Balance()
+
+	addImpurePP := scauri.ScFuncs.AddPPToFraction(ctx.Sign(testSorter))
 	addImpurePP.Params.PpID().SetValue(id1)
 	addImpurePP.Params.FracID().SetValue(fracID)
 	addImpurePP.Func.TransferIotas(1).Call()
 
+	//FRACTION: Test fraction properties
 	var expectedFraction *scauri.Fraction
 	expectedFraction = new(scauri.Fraction)
 	expectedFraction.FracId = fracID
@@ -370,19 +396,18 @@ func TestUnsuccessfullRecyclingCircle(t *testing.T) {
 	expectedFraction.Name = "TestFraction"
 	expectedFraction.Purpose = "false" //because non food article was added
 	expectedFraction.Issuer = testSorter.ScAgentID()
-	expectedFraction.Amount = 1
+	expectedFraction.Amount = (iotasAddedToCharge / packagesPerCharge) * 75 / 100 * numPackageTypes * numPackages
 
 	GetFraction := scauri.ScFuncs.GetFraction(ctx)
 	GetFraction.Params.FracID().SetValue(fracID)
 	GetFraction.Func.Call()
 	var fracResultsProxy = GetFraction.Results
 
-	//Test fraction properties
 	require.EqualValues(t, expectedFraction.FracId, fracResultsProxy.Fraction().Value().FracId)
 	require.EqualValues(t, expectedFraction.Purpose, fracResultsProxy.Fraction().Value().Purpose)
 	require.EqualValues(t, expectedFraction.Issuer, fracResultsProxy.Fraction().Value().Issuer)
 
-	//Test resulting fraction compositions (for PP, PE and HDPE)
+	//FRACTION: Test resulting fraction compositions (for PP, PE and HDPE)
 	var expectedFracCompositon1 *scauri.FracComposition
 	expectedFracCompositon1 = new(scauri.FracComposition)
 	expectedFracCompositon1.Material = "PP"
@@ -413,12 +438,26 @@ func TestUnsuccessfullRecyclingCircle(t *testing.T) {
 	require.EqualValues(t, expectedFracCompositon3.Mass, fracResultsProxy.FracComposition().GetFracComposition(2).Value().Mass)
 	require.NoError(t, ctx.Err)
 
+	//FRACTION: Test correct payoff for producer
+	var expectedPayoffProducer uint64 = (iotasAddedToCharge/packagesPerCharge)*25/100*numPackageTypes*numPackages - uint64(len(keys))
+
+	for k := 0; k < len(keys); k++ {
+		payoutProducerX := scauri.ScFuncs.PayoutProducer(ctx.Sign(testProducer))
+		payoutProducerX.Params.PpID().SetValue(keys[k])
+		payoutProducerX.Func.TransferIotas(1).Call()
+	}
+
+	require.EqualValues(t, expectedPayoffProducer, testProducer.Balance()-preBalanceProducer)
+
+	//RECYCLATE
 	var testRecycler = ctx.NewSoloAgent()
 	addRecycler := scauri.ScFuncs.AddRecycler(ctx.Sign(owner))
 	addRecycler.Params.RecyclerID().SetValue(testRecycler.ScAgentID())
 	addRecycler.Func.TransferIotas(1).Call()
 
-	//test recyclate
+	var preBalanceRecycler uint64 = testRecycler.Balance() - 1 //-1 for the func call afterwards
+
+	//RECYLCATE: Test recyclate properties
 	createRecyclate := scauri.ScFuncs.CreateRecyclate(ctx.Sign(testRecycler))
 	createRecyclate.Params.FracID().SetValue(fracID)
 	createRecyclate.Params.Name().SetValue("TestRecyclate")
@@ -445,7 +484,7 @@ func TestUnsuccessfullRecyclingCircle(t *testing.T) {
 	require.EqualValues(t, expectedRecyclate.Issuer, recyResultsProxy.Recyclate().Value().Issuer)
 	require.NoError(t, ctx.Err)
 
-	//Test resulting recycling compositions (for PP, PE and HDPE). Should be the same as for the fraction
+	//RECYCLATE: Test resulting recycling compositions (for PP, PE and HDPE). Should be the same as for the fraction
 	require.True(t, GetRecyclate.Results.RecyComposition().GetRecyComposition(0).Exists())
 	require.EqualValues(t, expectedFracCompositon1.Material, recyResultsProxy.RecyComposition().GetRecyComposition(0).Value().Material)
 	require.EqualValues(t, expectedFracCompositon1.Mass, recyResultsProxy.RecyComposition().GetRecyComposition(0).Value().Mass)
@@ -460,8 +499,19 @@ func TestUnsuccessfullRecyclingCircle(t *testing.T) {
 	require.EqualValues(t, expectedFracCompositon3.Material, recyResultsProxy.RecyComposition().GetRecyComposition(2).Value().Material)
 	require.EqualValues(t, expectedFracCompositon3.Mass, recyResultsProxy.RecyComposition().GetRecyComposition(2).Value().Mass)
 	require.NoError(t, ctx.Err)
+
+	//RECYCLATE: Test payoff recyclate
+	//Sorter/Recycler shall obtain no reward
+	var expectedPayoffRecycler uint64 = 0 // because fraction was polluted
+	require.EqualValues(t, expectedPayoffRecycler, testRecycler.Balance()-preBalanceRecycler)
+
+	//Money shall be transferred to donation address
+	var expectedPayoffDonation uint64 = expectedFraction.Amount
+	fmt.Println("expectedPayoff: " + fmt.Sprint(expectedPayoffDonation))
+	fmt.Println("RecyclerBalance: " + fmt.Sprint(testDonationReceiver.Balance()-donPreBalance))
+	require.EqualValues(t, expectedPayoffDonation, testDonationReceiver.Balance()-donPreBalance)
+
 	//test money distribution
 	//test deletion
 	//test access
 }
-*/

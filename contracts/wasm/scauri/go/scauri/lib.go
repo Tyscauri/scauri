@@ -21,6 +21,7 @@ var exportMap = wasmlib.ScExportMap{
     	FuncDeletePP,
     	FuncInit,
     	FuncPayoutProducer,
+    	FuncSetDonationAddress,
     	FuncSetOwner,
     	ViewGetAmountOfRequiredFunds,
     	ViewGetFraction,
@@ -40,6 +41,7 @@ var exportMap = wasmlib.ScExportMap{
     	funcDeletePPThunk,
     	funcInitThunk,
     	funcPayoutProducerThunk,
+    	funcSetDonationAddressThunk,
     	funcSetOwnerThunk,
 	},
 	Views: []wasmlib.ScViewContextFunction{
@@ -279,9 +281,33 @@ func funcPayoutProducerThunk(ctx wasmlib.ScFuncContext) {
 			proxy: wasmlib.NewStateProxy(),
 		},
 	}
-	ctx.Require(f.Params.FracID().Exists(), "missing mandatory fracID")
+	ctx.Require(f.Params.PpID().Exists(), "missing mandatory ppID")
 	funcPayoutProducer(ctx, f)
 	ctx.Log("scauri.funcPayoutProducer ok")
+}
+
+type SetDonationAddressContext struct {
+	Params  ImmutableSetDonationAddressParams
+	State   MutablescauriState
+}
+
+func funcSetDonationAddressThunk(ctx wasmlib.ScFuncContext) {
+	ctx.Log("scauri.funcSetDonationAddress")
+	f := &SetDonationAddressContext{
+		Params: ImmutableSetDonationAddressParams{
+			proxy: wasmlib.NewParamsProxy(),
+		},
+		State: MutablescauriState{
+			proxy: wasmlib.NewStateProxy(),
+		},
+	}
+	access := f.State.Owner()
+	ctx.Require(access.Exists(), "access not set: owner")
+	ctx.Require(ctx.Caller() == access.Value(), "no permission")
+
+	ctx.Require(f.Params.DonationAddress().Exists(), "missing mandatory donationAddress")
+	funcSetDonationAddress(ctx, f)
+	ctx.Log("scauri.funcSetDonationAddress ok")
 }
 
 type SetOwnerContext struct {

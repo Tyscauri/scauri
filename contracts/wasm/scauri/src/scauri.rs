@@ -53,7 +53,6 @@ pub fn func_create_pp(ctx: &ScFuncContext, f: &CreatePPContext) {
     let packagesAlreadyPaid = 0;
     let activationDate: u64 = ctx.timestamp() / NANO_TIME_DIVIDER;
     let expiryDate: u64 = f.params.expiry_date().value() / NANO_TIME_DIVIDER;
-    let lastPayout = activationDate;
 
     let ppNew = ProductPass{
         id: id,
@@ -73,7 +72,6 @@ pub fn func_create_pp(ctx: &ScFuncContext, f: &CreatePPContext) {
         reward_per_package_recycler: rewardPerPackageRecycler,
         activation_date: activationDate,
         expiry_date: expiryDate,
-        last_producer_payout: lastPayout,
     };
     
     let mut requiredToken = &ppNew.charge_weight * f.state.price_per_mg().value();
@@ -313,7 +311,7 @@ pub fn func_create_recyclate(ctx: &ScFuncContext, f: &CreateRecyclateContext) {
         newRecyCompProxy.append_recy_composition().set_value(&recyComp);
     }
     
-    //manage payouts
+    //manage payouts for the recycler
     if fraction.amount > 0 {
         let mut address: ScAgentID;
         
@@ -357,29 +355,17 @@ fn create_random_hash(ctx: &ScFuncContext) -> ScHash {
 pub fn func_payout_producer(ctx: &ScFuncContext, f: &PayoutProducerContext) {
 
 
-    let ppID = f.params.frac_id().value();
+    let ppID = f.params.pp_id().value();
     let pp_proxy = f.state.productpasses().get_product_pass(&ppID);
     let pp_value = pp_proxy.value();
 
-    let lastpayout = pp_value.last_producer_payout;
-    let currentTime: u64 = ctx.timestamp() / NANO_TIME_DIVIDER;    
+    let address: ScAgentID = pp_value.issuer;
+    let payout = pp_value.reward_per_package_producer * (&pp_value.packages_sorted - &pp_value.packages_already_paid);
 
-    //can be called only once per day (every 86400 seconds)
-    if lastpayout + 86400 < currentTime && pp_value.packages_sorted > pp_value.packages_already_paid {
+    pp_proxy.value().packages_already_paid = pp_value.packages_sorted;
 
-        let address: ScAgentID = pp_value.issuer;
-        let payout = pp_value.reward_per_package_producer * (&pp_value.packages_sorted - &pp_value.packages_already_paid);
-    
-        pp_proxy.value().packages_already_paid = pp_value.packages_sorted;
-    
-        let transfers: ScTransfers = ScTransfers::iotas(payout);
-        ctx.transfer_to_address(&address.address(), transfers);
-        pp_proxy.value().last_producer_payout = currentTime;
-    }
-    else {
-        ctx.panic("Function can only be called once every 24 hours.");
-    }
-
+    let transfers: ScTransfers = ScTransfers::iotas(payout);
+    ctx.transfer_to_address(&address.address(), transfers);
 }
 
 pub fn func_delete_pp(ctx: &ScFuncContext, f: &DeletePPContext) {
@@ -473,4 +459,8 @@ pub fn view_get_recyclate(ctx: &ScViewContext, f: &GetRecyclateContext) {
     else {
     ctx.panic("Recyclate ID not found");
     }
+}
+
+pub fn func_set_donation_address(ctx: &ScFuncContext, f: &SetDonationAddressContext) {
+    f.state.donation_address().set_value(&f.params.donation_address().value());
 }

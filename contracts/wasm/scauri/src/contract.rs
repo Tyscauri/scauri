@@ -60,6 +60,11 @@ pub struct PayoutProducerCall {
 	pub params: MutablePayoutProducerParams,
 }
 
+pub struct SetDonationAddressCall {
+	pub func: ScFunc,
+	pub params: MutableSetDonationAddressParams,
+}
+
 pub struct SetOwnerCall {
 	pub func: ScFunc,
 	pub params: MutableSetOwnerParams,
@@ -196,6 +201,15 @@ impl ScFuncs {
         let mut f = PayoutProducerCall {
             func: ScFunc::new(HSC_NAME, HFUNC_PAYOUT_PRODUCER),
             params: MutablePayoutProducerParams { proxy: Proxy::nil() },
+        };
+        ScFunc::link_params(&mut f.params.proxy, &f.func);
+        f
+    }
+
+    pub fn set_donation_address(_ctx: &dyn ScFuncCallContext) -> SetDonationAddressCall {
+        let mut f = SetDonationAddressCall {
+            func: ScFunc::new(HSC_NAME, HFUNC_SET_DONATION_ADDRESS),
+            params: MutableSetDonationAddressParams { proxy: Proxy::nil() },
         };
         ScFunc::link_params(&mut f.params.proxy, &f.func);
         f

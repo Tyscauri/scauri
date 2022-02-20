@@ -16,21 +16,22 @@ const (
 )
 
 const (
-	ParamChargeWeight   = "chargeWeight"
-	ParamCompositions   = "compositions"
-	ParamExpiryDate     = "expiryDate"
-	ParamFracID         = "fracID"
-	ParamId             = "id"
-	ParamName           = "name"
-	ParamOwner          = "owner"
-	ParamPackageWeight  = "packageWeight"
-	ParamPackagesNumber = "packagesNumber"
-	ParamPpID           = "ppID"
-	ParamProdPass       = "prodPass"
-	ParamPurpose        = "purpose"
-	ParamRecyID         = "recyID"
-	ParamRecyclerID     = "recyclerID"
-	ParamSorterID       = "sorterID"
+	ParamChargeWeight    = "chargeWeight"
+	ParamCompositions    = "compositions"
+	ParamDonationAddress = "donationAddress"
+	ParamExpiryDate      = "expiryDate"
+	ParamFracID          = "fracID"
+	ParamId              = "id"
+	ParamName            = "name"
+	ParamOwner           = "owner"
+	ParamPackageWeight   = "packageWeight"
+	ParamPackagesNumber  = "packagesNumber"
+	ParamPpID            = "ppID"
+	ParamProdPass        = "prodPass"
+	ParamPurpose         = "purpose"
+	ParamRecyID          = "recyID"
+	ParamRecyclerID      = "recyclerID"
+	ParamSorterID        = "sorterID"
 )
 
 const (
@@ -76,6 +77,7 @@ const (
 	FuncDeletePP                 = "deletePP"
 	FuncInit                     = "init"
 	FuncPayoutProducer           = "payoutProducer"
+	FuncSetDonationAddress       = "setDonationAddress"
 	FuncSetOwner                 = "setOwner"
 	ViewGetAmountOfRequiredFunds = "getAmountOfRequiredFunds"
 	ViewGetFraction              = "getFraction"
@@ -96,6 +98,7 @@ const (
 	HFuncDeletePP                 = wasmtypes.ScHname(0x56dedc36)
 	HFuncInit                     = wasmtypes.ScHname(0x1f44d644)
 	HFuncPayoutProducer           = wasmtypes.ScHname(0x3a56494b)
+	HFuncSetDonationAddress       = wasmtypes.ScHname(0x5b375a7d)
 	HFuncSetOwner                 = wasmtypes.ScHname(0x2a15fe7b)
 	HViewGetAmountOfRequiredFunds = wasmtypes.ScHname(0xbcbaf2d6)
 	HViewGetFraction              = wasmtypes.ScHname(0xe1c332fa)
