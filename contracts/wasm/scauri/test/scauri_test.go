@@ -380,7 +380,7 @@ func TestUnsuccessfullRecyclingCircle(t *testing.T) {
 	createPP.Params.Compositions().AppendComposition().SetValue(composition1)
 	createPP.Params.Compositions().AppendComposition().SetValue(composition2)
 	createPP.Params.Compositions().AppendComposition().SetValue(composition3)
-	createPP.Func.TransferIotas(10).Call()
+	createPP.Func.TransferIotas(iotasAddedToCharge).Call()
 	var id1 = createPP.Results.Id().Value()
 	fmt.Println("id1: " + fmt.Sprint(id1))
 
@@ -514,11 +514,19 @@ func TestUnsuccessfullRecyclingCircle(t *testing.T) {
 
 	//Money shall be transferred to donation address
 	var expectedPayoffDonation uint64 = expectedFraction.Amount
+	require.EqualValues(t, expectedPayoffDonation, testDonationReceiver.Balance()-donPreBalance)
+
+	//test token to donate & implement get token to donate
+	payoutDonation := scauri.ScFuncs.PayoutDonation(ctx.Sign(testDonationReceiver))
+	payoutDonation.Func.TransferIotas(1).Call()
+
+	expectedPayoffDonation += (iotasAddedToCharge / packagesPerCharge) - 2 //should be -1
 	fmt.Println("expectedPayoff: " + fmt.Sprint(expectedPayoffDonation))
 	fmt.Println("RecyclerBalance: " + fmt.Sprint(testDonationReceiver.Balance()-donPreBalance))
 	require.EqualValues(t, expectedPayoffDonation, testDonationReceiver.Balance()-donPreBalance)
 
-	//test token to donate & implement get token to donate
+	// delete PP-Charge - prohibt overuse of resources/ funds
+	// check rundungsfehler (look for "sendMoney"): maybe require divisible by 4
 	//test deletion
 	//test access
 }

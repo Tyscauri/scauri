@@ -54,6 +54,10 @@ type InitCall struct {
 	Params  MutableInitParams
 }
 
+type PayoutDonationCall struct {
+	Func    *wasmlib.ScFunc
+}
+
 type PayoutProducerCall struct {
 	Func    *wasmlib.ScFunc
 	Params  MutablePayoutProducerParams
@@ -165,6 +169,10 @@ func (sc Funcs) Init(ctx wasmlib.ScFuncCallContext) *InitCall {
 	f := &InitCall{Func: wasmlib.NewScInitFunc(ctx, HScName, HFuncInit)}
 	f.Params.proxy = wasmlib.NewCallParamsProxy(&f.Func.ScView)
 	return f
+}
+
+func (sc Funcs) PayoutDonation(ctx wasmlib.ScFuncCallContext) *PayoutDonationCall {
+	return &PayoutDonationCall{Func: wasmlib.NewScFunc(ctx, HScName, HFuncPayoutDonation)}
 }
 
 func (sc Funcs) PayoutProducer(ctx wasmlib.ScFuncCallContext) *PayoutProducerCall {

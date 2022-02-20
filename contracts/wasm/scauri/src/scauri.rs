@@ -258,11 +258,15 @@ pub fn func_add_pp_to_fraction(ctx: &ScFuncContext, f: &AddPPToFractionContext) 
             //update fraction.purpose
             let mut tmp_fraction = frac_proxy.value();
             tmp_fraction.pure = false;
-            frac_proxy.set_value(&tmp_fraction);
+            frac_proxy.set_value(&tmp_fraction);  
         }
 
         let donation_proxy = f.state.token_to_donate();
-        donation_proxy.set_value(donation_proxy.value() + &pp.reward_per_package_producer + &pp.reward_per_package_recycler);
+        let new_amount_token: u64 = donation_proxy.value() + pp.reward_per_package_producer + pp.reward_per_package_recycler;
+        donation_proxy.set_value(new_amount_token);
+        ctx.log(&format!("SendMoney: '{x}'", x = new_amount_token));
+
+
 
         //update pp.packages_wrong sorted
         let mut tmp_pp = pp_proxy.value();
@@ -474,4 +478,19 @@ pub fn view_get_recyclate(ctx: &ScViewContext, f: &GetRecyclateContext) {
 
 pub fn func_set_donation_address(ctx: &ScFuncContext, f: &SetDonationAddressContext) {
     f.state.donation_address().set_value(&f.params.donation_address().value());
+}
+
+pub fn func_payout_donation(ctx: &ScFuncContext, f: &PayoutDonationContext) {
+
+    let token_to_donate_proxy = f.state.token_to_donate();
+    let token_to_donate: u64 = token_to_donate_proxy.value();
+
+    if token_to_donate > 0 {
+
+        let address: ScAgentID = f.state.donation_address().value();
+        let transfers: ScTransfers = ScTransfers::iotas(token_to_donate);
+        ctx.transfer_to_address(&address.address(), transfers);
+
+        token_to_donate_proxy.set_value(0);
+    }
 }

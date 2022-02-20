@@ -20,6 +20,7 @@ var exportMap = wasmlib.ScExportMap{
     	FuncCreateRecyclate,
     	FuncDeletePP,
     	FuncInit,
+    	FuncPayoutDonation,
     	FuncPayoutProducer,
     	FuncSetDonationAddress,
     	FuncSetOwner,
@@ -40,6 +41,7 @@ var exportMap = wasmlib.ScExportMap{
     	funcCreateRecyclateThunk,
     	funcDeletePPThunk,
     	funcInitThunk,
+    	funcPayoutDonationThunk,
     	funcPayoutProducerThunk,
     	funcSetDonationAddressThunk,
     	funcSetOwnerThunk,
@@ -264,6 +266,21 @@ func funcInitThunk(ctx wasmlib.ScFuncContext) {
 	}
 	funcInit(ctx, f)
 	ctx.Log("scauri.funcInit ok")
+}
+
+type PayoutDonationContext struct {
+	State   MutablescauriState
+}
+
+func funcPayoutDonationThunk(ctx wasmlib.ScFuncContext) {
+	ctx.Log("scauri.funcPayoutDonation")
+	f := &PayoutDonationContext{
+		State: MutablescauriState{
+			proxy: wasmlib.NewStateProxy(),
+		},
+	}
+	funcPayoutDonation(ctx, f)
+	ctx.Log("scauri.funcPayoutDonation ok")
 }
 
 type PayoutProducerContext struct {

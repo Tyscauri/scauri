@@ -121,6 +121,7 @@ funcs:
     access: owner
     params:
       recyclerID: AgentID
+  payoutDonation:
 views:
   getPP:
     params: 

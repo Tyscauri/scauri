@@ -76,6 +76,7 @@ const (
 	FuncCreateRecyclate          = "createRecyclate"
 	FuncDeletePP                 = "deletePP"
 	FuncInit                     = "init"
+	FuncPayoutDonation           = "payoutDonation"
 	FuncPayoutProducer           = "payoutProducer"
 	FuncSetDonationAddress       = "setDonationAddress"
 	FuncSetOwner                 = "setOwner"
@@ -97,6 +98,7 @@ const (
 	HFuncCreateRecyclate          = wasmtypes.ScHname(0x5066d840)
 	HFuncDeletePP                 = wasmtypes.ScHname(0x56dedc36)
 	HFuncInit                     = wasmtypes.ScHname(0x1f44d644)
+	HFuncPayoutDonation           = wasmtypes.ScHname(0x4cf2009a)
 	HFuncPayoutProducer           = wasmtypes.ScHname(0x3a56494b)
 	HFuncSetDonationAddress       = wasmtypes.ScHname(0x5b375a7d)
 	HFuncSetOwner                 = wasmtypes.ScHname(0x2a15fe7b)

@@ -55,6 +55,10 @@ pub struct InitCall {
 	pub params: MutableInitParams,
 }
 
+pub struct PayoutDonationCall {
+	pub func: ScFunc,
+}
+
 pub struct PayoutProducerCall {
 	pub func: ScFunc,
 	pub params: MutablePayoutProducerParams,
@@ -195,6 +199,12 @@ impl ScFuncs {
         };
         ScInitFunc::link_params(&mut f.params.proxy, &f.func);
         f
+    }
+
+    pub fn payout_donation(_ctx: &dyn ScFuncCallContext) -> PayoutDonationCall {
+        PayoutDonationCall {
+            func: ScFunc::new(HSC_NAME, HFUNC_PAYOUT_DONATION),
+        }
     }
 
     pub fn payout_producer(_ctx: &dyn ScFuncCallContext) -> PayoutProducerCall {

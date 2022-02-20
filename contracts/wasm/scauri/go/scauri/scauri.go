@@ -65,3 +65,6 @@ func viewGetTokenPerPackage(ctx wasmlib.ScViewContext, f *GetTokenPerPackageCont
 
 func funcSetDonationAddress(ctx wasmlib.ScFuncContext, f *SetDonationAddressContext) {
 }
+
+func funcPayoutDonation(ctx wasmlib.ScFuncContext, f *PayoutDonationContext) {
+}

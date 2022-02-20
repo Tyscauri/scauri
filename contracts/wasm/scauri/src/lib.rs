@@ -38,6 +38,7 @@ const EXPORT_MAP: ScExportMap = ScExportMap {
     	FUNC_CREATE_RECYCLATE,
     	FUNC_DELETE_PP,
     	FUNC_INIT,
+    	FUNC_PAYOUT_DONATION,
     	FUNC_PAYOUT_PRODUCER,
     	FUNC_SET_DONATION_ADDRESS,
     	FUNC_SET_OWNER,
@@ -58,6 +59,7 @@ const EXPORT_MAP: ScExportMap = ScExportMap {
     	func_create_recyclate_thunk,
     	func_delete_pp_thunk,
     	func_init_thunk,
+    	func_payout_donation_thunk,
     	func_payout_producer_thunk,
     	func_set_donation_address_thunk,
     	func_set_owner_thunk,
@@ -236,6 +238,19 @@ fn func_init_thunk(ctx: &ScFuncContext) {
 	};
 	func_init(ctx, &f);
 	ctx.log("scauri.funcInit ok");
+}
+
+pub struct PayoutDonationContext {
+	state: MutablescauriState,
+}
+
+fn func_payout_donation_thunk(ctx: &ScFuncContext) {
+	ctx.log("scauri.funcPayoutDonation");
+	let f = PayoutDonationContext {
+		state: MutablescauriState { proxy: state_proxy() },
+	};
+	func_payout_donation(ctx, &f);
+	ctx.log("scauri.funcPayoutDonation ok");
 }
 
 pub struct PayoutProducerContext {
