@@ -178,7 +178,6 @@ fn func_create_pp_thunk(ctx: &ScFuncContext) {
 	ctx.require(f.params.package_weight().exists(), "missing mandatory packageWeight");
 	ctx.require(f.params.packages_number().exists(), "missing mandatory packagesNumber");
 	ctx.require(f.params.purpose().exists(), "missing mandatory purpose");
-	ctx.require(f.params.recyclate_share().exists(), "missing mandatory recyclateShare");
 	func_create_pp(ctx, &f);
 	ctx.results(&f.results.proxy.kv_store);
 	ctx.log("scauri.funcCreatePP ok");

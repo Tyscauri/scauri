@@ -188,7 +188,6 @@ func funcCreatePPThunk(ctx wasmlib.ScFuncContext) {
 	ctx.Require(f.Params.PackageWeight().Exists(), "missing mandatory packageWeight")
 	ctx.Require(f.Params.PackagesNumber().Exists(), "missing mandatory packagesNumber")
 	ctx.Require(f.Params.Purpose().Exists(), "missing mandatory purpose")
-	ctx.Require(f.Params.RecyclateShare().Exists(), "missing mandatory recyclateShare")
 	funcCreatePP(ctx, f)
 	ctx.Results(results)
 	ctx.Log("scauri.funcCreatePP ok")

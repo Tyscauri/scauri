@@ -196,7 +196,6 @@ type ProductPass struct {
 	PackagesSorted           uint64 
 	PackagesWrongSorted      uint64 
 	Purpose                  string  //e.g. food, hygiene, others
-	RecyclateShare           uint8 
 	RewardPerPackageProducer uint64 
 	RewardPerPackageRecycler uint64 
 	Version                  uint8 
@@ -220,7 +219,6 @@ func NewProductPassFromBytes(buf []byte) *ProductPass {
 	data.PackagesSorted           = wasmtypes.Uint64Decode(dec)
 	data.PackagesWrongSorted      = wasmtypes.Uint64Decode(dec)
 	data.Purpose                  = wasmtypes.StringDecode(dec)
-	data.RecyclateShare           = wasmtypes.Uint8Decode(dec)
 	data.RewardPerPackageProducer = wasmtypes.Uint64Decode(dec)
 	data.RewardPerPackageRecycler = wasmtypes.Uint64Decode(dec)
 	data.Version                  = wasmtypes.Uint8Decode(dec)
@@ -245,7 +243,6 @@ func (o *ProductPass) Bytes() []byte {
 		wasmtypes.Uint64Encode(enc, o.PackagesSorted)
 		wasmtypes.Uint64Encode(enc, o.PackagesWrongSorted)
 		wasmtypes.StringEncode(enc, o.Purpose)
-		wasmtypes.Uint8Encode(enc, o.RecyclateShare)
 		wasmtypes.Uint64Encode(enc, o.RewardPerPackageProducer)
 		wasmtypes.Uint64Encode(enc, o.RewardPerPackageRecycler)
 		wasmtypes.Uint8Encode(enc, o.Version)
@@ -338,7 +335,6 @@ func (o MutableRecyComposition) Value() *RecyComposition {
 }
 
 type Recyclate struct {
-	Amount  uint64 
 	Did     string 
 	FracId  wasmtypes.ScHash 
 	Issuer  wasmtypes.ScAgentID 
@@ -350,7 +346,6 @@ type Recyclate struct {
 func NewRecyclateFromBytes(buf []byte) *Recyclate {
 	dec := wasmtypes.NewWasmDecoder(buf)
 	data := &Recyclate{}
-	data.Amount  = wasmtypes.Uint64Decode(dec)
 	data.Did     = wasmtypes.StringDecode(dec)
 	data.FracId  = wasmtypes.HashDecode(dec)
 	data.Issuer  = wasmtypes.AgentIDDecode(dec)
@@ -363,7 +358,6 @@ func NewRecyclateFromBytes(buf []byte) *Recyclate {
 
 func (o *Recyclate) Bytes() []byte {
 	enc := wasmtypes.NewWasmEncoder()
-		wasmtypes.Uint64Encode(enc, o.Amount)
 		wasmtypes.StringEncode(enc, o.Did)
 		wasmtypes.HashEncode(enc, o.FracId)
 		wasmtypes.AgentIDEncode(enc, o.Issuer)

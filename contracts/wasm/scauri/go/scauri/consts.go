@@ -29,7 +29,6 @@ const (
 	ParamProdPass       = "prodPass"
 	ParamPurpose        = "purpose"
 	ParamRecyID         = "recyID"
-	ParamRecyclateShare = "recyclateShare"
 	ParamRecyclerID     = "recyclerID"
 	ParamSorterID       = "sorterID"
 )

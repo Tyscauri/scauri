@@ -21,7 +21,6 @@ structs:
     lastProducerPayout: Uint64
     activationDate: Uint64
     expiryDate: Uint64
-    recyclateShare: Uint8
   Composition:
     material: String
     mass: Uint64
@@ -41,7 +40,6 @@ structs:
     name: String
     purpose: String
     issuer: AgentID
-    amount: Uint64
     fracId: Hash
   RecyComposition:
     material: String
@@ -75,7 +73,6 @@ funcs:
       packagesNumber: Uint64
       packageWeight: Uint64
       expiryDate: Uint64
-      recyclateShare: Uint8
       compositions: Compositions 
     results:
       id: Hash

@@ -54,8 +54,6 @@ pub fn func_create_pp(ctx: &ScFuncContext, f: &CreatePPContext) {
     let activationDate: u64 = ctx.timestamp() / NANO_TIME_DIVIDER;
     let expiryDate: u64 = f.params.expiry_date().value() / NANO_TIME_DIVIDER;
     let lastPayout = activationDate;
-    let recyclateShare = f.params.recyclate_share().value();
-
 
     let ppNew = ProductPass{
         id: id,
@@ -76,8 +74,6 @@ pub fn func_create_pp(ctx: &ScFuncContext, f: &CreatePPContext) {
         activation_date: activationDate,
         expiry_date: expiryDate,
         last_producer_payout: lastPayout,
-        recyclate_share: recyclateShare
-
     };
     
     let mut requiredToken = &ppNew.charge_weight * f.state.price_per_mg().value();
@@ -89,12 +85,9 @@ pub fn func_create_pp(ctx: &ScFuncContext, f: &CreatePPContext) {
     
     f.state.productpasses().get_product_pass(&ppNew.id).set_value(&ppNew);
     f.results.id().set_value(&ppNew.id);
-    ctx.log(&format!("result set value id: {id}", id=f.results.id().value().to_string()));
-    ctx.log(&format!("result id: {id}", id=&ppNew.id.to_string()));
 
 
     //set Materials
-        
     let newComps= f.params.compositions();
     
     if newComps.length() == 0 {
@@ -224,10 +217,8 @@ pub fn func_add_pp_to_fraction(ctx: &ScFuncContext, f: &AddPPToFractionContext) 
                     material: mat,
                     mass: mass
                 };
-                
                 fracComps.append_frac_composition().set_value(&newMat);
-            }
-            
+            }          
         }
     }
 
@@ -242,41 +233,55 @@ pub fn func_add_pp_to_fraction(ctx: &ScFuncContext, f: &AddPPToFractionContext) 
                 material: mat,
                 mass: mass
             };
-            
             fracComps.append_frac_composition().set_value(&newMat);
-            }
-        
+        }       
     }
-    
+
     //organize money distribution
     //note that tracking packages which have been sorted to a fraction with the same purpose is basis for releasing funds
     if pp.purpose == frac_proxy.value().purpose {
         
-        pp_proxy.value().packages_sorted = &pp.packages_sorted +1;
-        frac_proxy.value().amount += &pp.reward_per_package_recycler;
+        //update pp.packages sorted
+        let mut tmp_pp = pp_proxy.value();
+        tmp_pp.packages_sorted +=1;
+        pp_proxy.set_value(&tmp_pp);
+
+        //update frac.amount
+        let mut tmp_frac = frac_proxy.value();
+        tmp_frac.amount += &pp.reward_per_package_recycler;
+        frac_proxy.set_value(&tmp_frac);
     }
 
     else {          //currently sets the whole fraction unsuitable for the original application if one packaging added is not suitable for it
         if frac_proxy.value().purpose != "false" {
-            frac_proxy.value().purpose = "false".to_string();
+
+            //update fraction.purpose
+            let mut tmp_fraction = frac_proxy.value();
+            tmp_fraction.purpose = "false".to_string();
+            frac_proxy.set_value(&tmp_fraction);
         }
+
         let donation_proxy = f.state.token_to_donate();
         donation_proxy.set_value(donation_proxy.value() + &pp.reward_per_package_producer + &pp.reward_per_package_recycler);
-        pp_proxy.value().packages_wrong_sorted += 1;
+
+        //update pp.packages_wrong sorted
+        let mut tmp_pp = pp_proxy.value();
+        tmp_pp.packages_wrong_sorted += 1;
+        pp_proxy.set_value(&tmp_pp);
     }    
 }
 
 pub fn func_create_recyclate(ctx: &ScFuncContext, f: &CreateRecyclateContext) {
     
     let fracID = f.params.frac_id().value();
-    let fraction: Fraction = f.state.fractions().get_fraction(&fracID).value();
+    let frac_proxy = f.state.fractions().get_fraction(&fracID);
+    let fraction: Fraction = frac_proxy.value();
 
     let recyclateID = create_random_hash(ctx);    
     let did: String = "did:iota:".to_owned() + &"recy".to_owned() + &recyclateID.to_string();
     let name = f.params.name().value();
     let purpose = fraction.purpose;
     let issuer: ScAgentID = ctx.caller();    
-    let amount: u64 = fraction.amount;
     
     let newRecy = Recyclate {
         recy_id: recyclateID,
@@ -284,13 +289,14 @@ pub fn func_create_recyclate(ctx: &ScFuncContext, f: &CreateRecyclateContext) {
         name: name,
         purpose: purpose,
         issuer: issuer,
-        amount: amount,
         frac_id: fracID
     };
     
     let recyclates_proxy = f.state.recyclates();
-    recyclates_proxy.get_recyclate(&newRecy.recy_id).set_value(&newRecy);
+    let recyclate_proxy = recyclates_proxy.get_recyclate(&newRecy.recy_id);
+    recyclate_proxy.set_value(&newRecy);
     
+    //append material compositions to recyclate
     let newRecyCompProxy = f.state.recy_compositions().get_recy_compositions(&newRecy.recy_id);
     let fracComp: ArrayOfMutableFracComposition = f.state.frac_compositions().get_frac_compositions(&newRecy.frac_id);
     
@@ -308,10 +314,10 @@ pub fn func_create_recyclate(ctx: &ScFuncContext, f: &CreateRecyclateContext) {
     }
     
     //manage payouts
-    if newRecy.amount > 0 {
+    if fraction.amount > 0 {
         let mut address: ScAgentID;
         
-        //only if the fraction is usable for the same purpose as the included packagings the money goes to the recycler, otherwise to a non profit address
+        //only if the fraction is usable for the same purpose as all included packagings the money goes to the recycler, otherwise to a non profit address
         if newRecy.purpose != "false" {
             address = newRecy.issuer;
         }
@@ -319,11 +325,15 @@ pub fn func_create_recyclate(ctx: &ScFuncContext, f: &CreateRecyclateContext) {
             address = f.state.donation_address().value();
         }
 
-        let payout = newRecy.amount;
+        let payout = fraction.amount;
 
         let transfers: ScTransfers = ScTransfers::iotas(payout);
         ctx.transfer_to_address(&address.address(), transfers);
-        recyclates_proxy.get_recyclate(&newRecy.recy_id).value().amount = 0;
+
+        //update fraction.amount to 0
+        let mut tmp_fraction = frac_proxy.value();
+        tmp_fraction.amount = 0;
+        frac_proxy.set_value(&tmp_fraction);
     }
 
 

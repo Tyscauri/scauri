@@ -144,10 +144,6 @@ impl ImmutableCreatePPParams {
     pub fn purpose(&self) -> ScImmutableString {
 		ScImmutableString::new(self.proxy.root(PARAM_PURPOSE))
 	}
-
-    pub fn recyclate_share(&self) -> ScImmutableUint8 {
-		ScImmutableUint8::new(self.proxy.root(PARAM_RECYCLATE_SHARE))
-	}
 }
 
 #[derive(Clone)]
@@ -178,10 +174,6 @@ impl MutableCreatePPParams {
 
     pub fn purpose(&self) -> ScMutableString {
 		ScMutableString::new(self.proxy.root(PARAM_PURPOSE))
-	}
-
-    pub fn recyclate_share(&self) -> ScMutableUint8 {
-		ScMutableUint8::new(self.proxy.root(PARAM_RECYCLATE_SHARE))
 	}
 }
 

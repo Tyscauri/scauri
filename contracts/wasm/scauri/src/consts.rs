@@ -26,7 +26,6 @@ pub const PARAM_PP_ID           : &str = "ppID";
 pub const PARAM_PROD_PASS       : &str = "prodPass";
 pub const PARAM_PURPOSE         : &str = "purpose";
 pub const PARAM_RECY_ID         : &str = "recyID";
-pub const PARAM_RECYCLATE_SHARE : &str = "recyclateShare";
 pub const PARAM_RECYCLER_ID     : &str = "recyclerID";
 pub const PARAM_SORTER_ID       : &str = "sorterID";
 

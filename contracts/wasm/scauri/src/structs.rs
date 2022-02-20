@@ -222,7 +222,6 @@ pub struct ProductPass {
     pub packages_sorted             : u64, 
     pub packages_wrong_sorted       : u64, 
     pub purpose                     : String,  //e.g. food, hygiene, others
-    pub recyclate_share             : u8, 
     pub reward_per_package_producer : u64, 
     pub reward_per_package_recycler : u64, 
     pub version                     : u8, 
@@ -247,7 +246,6 @@ impl ProductPass {
             packages_sorted             : uint64_decode(&mut dec),
             packages_wrong_sorted       : uint64_decode(&mut dec),
             purpose                     : string_decode(&mut dec),
-            recyclate_share             : uint8_decode(&mut dec),
             reward_per_package_producer : uint64_decode(&mut dec),
             reward_per_package_recycler : uint64_decode(&mut dec),
             version                     : uint8_decode(&mut dec),
@@ -271,7 +269,6 @@ impl ProductPass {
 		uint64_encode(&mut enc, self.packages_sorted);
 		uint64_encode(&mut enc, self.packages_wrong_sorted);
 		string_encode(&mut enc, &self.purpose);
-		uint8_encode(&mut enc, self.recyclate_share);
 		uint64_encode(&mut enc, self.reward_per_package_producer);
 		uint64_encode(&mut enc, self.reward_per_package_recycler);
 		uint8_encode(&mut enc, self.version);
@@ -380,7 +377,6 @@ impl MutableRecyComposition {
 
 #[derive(Clone)]
 pub struct Recyclate {
-    pub amount  : u64, 
     pub did     : String, 
     pub frac_id : ScHash, 
     pub issuer  : ScAgentID, 
@@ -393,7 +389,6 @@ impl Recyclate {
     pub fn from_bytes(bytes: &[u8]) -> Recyclate {
         let mut dec = WasmDecoder::new(bytes);
         Recyclate {
-            amount  : uint64_decode(&mut dec),
             did     : string_decode(&mut dec),
             frac_id : hash_decode(&mut dec),
             issuer  : agent_id_decode(&mut dec),
@@ -405,7 +400,6 @@ impl Recyclate {
 
     pub fn to_bytes(&self) -> Vec<u8> {
         let mut enc = WasmEncoder::new();
-		uint64_encode(&mut enc, self.amount);
 		string_encode(&mut enc, &self.did);
 		hash_encode(&mut enc, &self.frac_id);
 		agent_id_encode(&mut enc, &self.issuer);
