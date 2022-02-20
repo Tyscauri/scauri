@@ -151,6 +151,7 @@ func TestSuccessfullRecyclingCircle(t *testing.T) {
 	expectedFraction.Did = "tbd"
 	expectedFraction.Name = "TestFraction"
 	expectedFraction.Purpose = "Food"
+	expectedFraction.Pure = true
 	expectedFraction.Issuer = testSorter.ScAgentID()
 	expectedFraction.Amount = (iotasAddedToCharge / packagesPerCharge) * 75 / 100 * numPackageTypes * numPackages
 
@@ -162,6 +163,7 @@ func TestSuccessfullRecyclingCircle(t *testing.T) {
 	//FRACTION: Test fraction properties
 	require.EqualValues(t, expectedFraction.FracId, fracResultsProxy.Fraction().Value().FracId)
 	require.EqualValues(t, expectedFraction.Purpose, fracResultsProxy.Fraction().Value().Purpose)
+	require.EqualValues(t, expectedFraction.Pure, fracResultsProxy.Fraction().Value().Pure)
 	require.EqualValues(t, expectedFraction.Issuer, fracResultsProxy.Fraction().Value().Issuer)
 	require.EqualValues(t, expectedFraction.Amount, fracResultsProxy.Fraction().Value().Amount)
 
@@ -229,6 +231,7 @@ func TestSuccessfullRecyclingCircle(t *testing.T) {
 	expectedRecyclate.Did = "tbd"
 	expectedRecyclate.Name = "TestRecyclate"
 	expectedRecyclate.Purpose = "Food"
+	expectedRecyclate.Pure = true
 	expectedRecyclate.Issuer = testRecycler.ScAgentID()
 
 	GetRecyclate := scauri.ScFuncs.GetRecyclate(ctx)
@@ -394,7 +397,8 @@ func TestUnsuccessfullRecyclingCircle(t *testing.T) {
 	expectedFraction.FracId = fracID
 	expectedFraction.Did = "tbd"
 	expectedFraction.Name = "TestFraction"
-	expectedFraction.Purpose = "false" //because non food article was added
+	expectedFraction.Purpose = "Food"
+	expectedFraction.Pure = false //because non food article was added
 	expectedFraction.Issuer = testSorter.ScAgentID()
 	expectedFraction.Amount = (iotasAddedToCharge / packagesPerCharge) * 75 / 100 * numPackageTypes * numPackages
 
@@ -405,6 +409,7 @@ func TestUnsuccessfullRecyclingCircle(t *testing.T) {
 
 	require.EqualValues(t, expectedFraction.FracId, fracResultsProxy.Fraction().Value().FracId)
 	require.EqualValues(t, expectedFraction.Purpose, fracResultsProxy.Fraction().Value().Purpose)
+	require.EqualValues(t, expectedFraction.Pure, fracResultsProxy.Fraction().Value().Pure)
 	require.EqualValues(t, expectedFraction.Issuer, fracResultsProxy.Fraction().Value().Issuer)
 
 	//FRACTION: Test resulting fraction compositions (for PP, PE and HDPE)
@@ -470,7 +475,8 @@ func TestUnsuccessfullRecyclingCircle(t *testing.T) {
 	expectedRecyclate.FracId = fracID
 	expectedRecyclate.Did = "tbd"
 	expectedRecyclate.Name = "TestRecyclate"
-	expectedRecyclate.Purpose = "false"
+	expectedRecyclate.Purpose = "Food"
+	expectedRecyclate.Pure = false
 	expectedRecyclate.Issuer = testRecycler.ScAgentID()
 
 	GetRecyclate := scauri.ScFuncs.GetRecyclate(ctx)
@@ -481,6 +487,7 @@ func TestUnsuccessfullRecyclingCircle(t *testing.T) {
 	require.EqualValues(t, expectedRecyclate.RecyId, recyResultsProxy.Recyclate().Value().RecyId)
 	require.EqualValues(t, expectedRecyclate.FracId, recyResultsProxy.Recyclate().Value().FracId)
 	require.EqualValues(t, expectedRecyclate.Purpose, recyResultsProxy.Recyclate().Value().Purpose)
+	require.EqualValues(t, expectedRecyclate.Pure, recyResultsProxy.Recyclate().Value().Pure)
 	require.EqualValues(t, expectedRecyclate.Issuer, recyResultsProxy.Recyclate().Value().Issuer)
 	require.NoError(t, ctx.Err)
 
@@ -511,7 +518,7 @@ func TestUnsuccessfullRecyclingCircle(t *testing.T) {
 	fmt.Println("RecyclerBalance: " + fmt.Sprint(testDonationReceiver.Balance()-donPreBalance))
 	require.EqualValues(t, expectedPayoffDonation, testDonationReceiver.Balance()-donPreBalance)
 
-	//test money distribution
+	//test token to donate & implement get token to donate
 	//test deletion
 	//test access
 }

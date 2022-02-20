@@ -162,6 +162,7 @@ pub fn func_create_fraction(ctx: &ScFuncContext, f: &CreateFractionContext) {
     let did: String = "did:iota:".to_owned() + &"frac".to_owned() + &fracID.to_string();
     let name = f.params.name().value();
     let purpose: String = f.params.purpose().value();
+    let pure: bool = true;
     let issuer: ScAgentID = ctx.caller();    
     
     let newFrac = Fraction {
@@ -169,6 +170,7 @@ pub fn func_create_fraction(ctx: &ScFuncContext, f: &CreateFractionContext) {
         did: did,
         name: name,
         purpose: purpose,
+        pure: pure,
         issuer: issuer,
         amount: 0
     };
@@ -250,12 +252,12 @@ pub fn func_add_pp_to_fraction(ctx: &ScFuncContext, f: &AddPPToFractionContext) 
         frac_proxy.set_value(&tmp_frac);
     }
 
-    else {          //currently sets the whole fraction unsuitable for the original application if one packaging added is not suitable for it
-        if frac_proxy.value().purpose != "false" {
+    else {          //currently sets the whole fraction impure for the original application if one packaging added is not suitable for it
+        if frac_proxy.value().pure {
 
             //update fraction.purpose
             let mut tmp_fraction = frac_proxy.value();
-            tmp_fraction.purpose = "false".to_string();
+            tmp_fraction.pure = false;
             frac_proxy.set_value(&tmp_fraction);
         }
 
@@ -279,6 +281,7 @@ pub fn func_create_recyclate(ctx: &ScFuncContext, f: &CreateRecyclateContext) {
     let did: String = "did:iota:".to_owned() + &"recy".to_owned() + &recyclateID.to_string();
     let name = f.params.name().value();
     let purpose = fraction.purpose;
+    let pure = fraction.pure;
     let issuer: ScAgentID = ctx.caller();    
     
     let newRecy = Recyclate {
@@ -286,6 +289,7 @@ pub fn func_create_recyclate(ctx: &ScFuncContext, f: &CreateRecyclateContext) {
         did: did,
         name: name,
         purpose: purpose,
+        pure: pure,
         issuer: issuer,
         frac_id: fracID
     };
@@ -316,7 +320,7 @@ pub fn func_create_recyclate(ctx: &ScFuncContext, f: &CreateRecyclateContext) {
         let mut address: ScAgentID;
         
         //only if the fraction is usable for the same purpose as all included packagings the money goes to the recycler, otherwise to a non profit address
-        if newRecy.purpose != "false" {
+        if newRecy.pure {
             address = newRecy.issuer;
         }
         else {
@@ -362,7 +366,11 @@ pub fn func_payout_producer(ctx: &ScFuncContext, f: &PayoutProducerContext) {
     let address: ScAgentID = pp_value.issuer;
     let payout = pp_value.reward_per_package_producer * (&pp_value.packages_sorted - &pp_value.packages_already_paid);
 
-    pp_proxy.value().packages_already_paid = pp_value.packages_sorted;
+    //update pp.packages_already_paid
+    let mut tmp_pp = pp_proxy.value();
+    tmp_pp.packages_already_paid = pp_value.packages_sorted;
+    pp_proxy.set_value(&tmp_pp);
+
 
     let transfers: ScTransfers = ScTransfers::iotas(payout);
     ctx.transfer_to_address(&address.address(), transfers);
@@ -378,15 +386,18 @@ pub fn func_delete_pp(ctx: &ScFuncContext, f: &DeletePPContext) {
     if pp_value.expiry_date > ctx.timestamp() / NANO_TIME_DIVIDER || total_number_packages == pp_value.packages_sorted + pp_value.packages_wrong_sorted {
     
         //payout remaing packages
-            if pp_value.packages_sorted > pp_value.packages_already_paid {
-                let address: ScAgentID = pp_value.issuer;
-                let payout = pp_value.reward_per_package_producer * (&pp_value.packages_sorted - &pp_value.packages_already_paid);
+        if pp_value.packages_sorted > pp_value.packages_already_paid {
+            let address: ScAgentID = pp_value.issuer;
+            let payout = pp_value.reward_per_package_producer * (&pp_value.packages_sorted - &pp_value.packages_already_paid);
             
-                pp_proxy.value().packages_already_paid = pp_value.packages_sorted;
+            //update pp.packages_already_paid
+            let mut tmp_pp = pp_proxy.value();
+            tmp_pp.packages_already_paid = pp_value.packages_sorted;
+            pp_proxy.set_value(&tmp_pp);
             
-                let transfers: ScTransfers = ScTransfers::iotas(payout);
-                ctx.transfer_to_address(&address.address(), transfers);
-            }
+            let transfers: ScTransfers = ScTransfers::iotas(payout);
+            ctx.transfer_to_address(&address.address(), transfers);
+        }
     
         let updated_pp_value = pp_proxy.value();
     

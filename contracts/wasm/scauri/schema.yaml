@@ -28,6 +28,7 @@ structs:
     did: String
     name: String
     purpose: String
+    pure: Bool
     issuer: AgentID
     amount: Uint64
   FracComposition:
@@ -38,6 +39,7 @@ structs:
     did: String
     name: String
     purpose: String
+    pure: Bool
     issuer: AgentID
     fracId: Hash
   RecyComposition:

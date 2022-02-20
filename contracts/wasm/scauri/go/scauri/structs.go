@@ -121,6 +121,7 @@ type Fraction struct {
 	FracId  wasmtypes.ScHash 
 	Issuer  wasmtypes.ScAgentID 
 	Name    string 
+	Pure    bool 
 	Purpose string 
 }
 
@@ -132,6 +133,7 @@ func NewFractionFromBytes(buf []byte) *Fraction {
 	data.FracId  = wasmtypes.HashDecode(dec)
 	data.Issuer  = wasmtypes.AgentIDDecode(dec)
 	data.Name    = wasmtypes.StringDecode(dec)
+	data.Pure    = wasmtypes.BoolDecode(dec)
 	data.Purpose = wasmtypes.StringDecode(dec)
 	dec.Close()
 	return data
@@ -144,6 +146,7 @@ func (o *Fraction) Bytes() []byte {
 		wasmtypes.HashEncode(enc, o.FracId)
 		wasmtypes.AgentIDEncode(enc, o.Issuer)
 		wasmtypes.StringEncode(enc, o.Name)
+		wasmtypes.BoolEncode(enc, o.Pure)
 		wasmtypes.StringEncode(enc, o.Purpose)
 	return enc.Buf()
 }
@@ -336,6 +339,7 @@ type Recyclate struct {
 	FracId  wasmtypes.ScHash 
 	Issuer  wasmtypes.ScAgentID 
 	Name    string 
+	Pure    bool 
 	Purpose string 
 	RecyId  wasmtypes.ScHash 
 }
@@ -347,6 +351,7 @@ func NewRecyclateFromBytes(buf []byte) *Recyclate {
 	data.FracId  = wasmtypes.HashDecode(dec)
 	data.Issuer  = wasmtypes.AgentIDDecode(dec)
 	data.Name    = wasmtypes.StringDecode(dec)
+	data.Pure    = wasmtypes.BoolDecode(dec)
 	data.Purpose = wasmtypes.StringDecode(dec)
 	data.RecyId  = wasmtypes.HashDecode(dec)
 	dec.Close()
@@ -359,6 +364,7 @@ func (o *Recyclate) Bytes() []byte {
 		wasmtypes.HashEncode(enc, o.FracId)
 		wasmtypes.AgentIDEncode(enc, o.Issuer)
 		wasmtypes.StringEncode(enc, o.Name)
+		wasmtypes.BoolEncode(enc, o.Pure)
 		wasmtypes.StringEncode(enc, o.Purpose)
 		wasmtypes.HashEncode(enc, o.RecyId)
 	return enc.Buf()

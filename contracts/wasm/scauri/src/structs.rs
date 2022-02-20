@@ -139,6 +139,7 @@ pub struct Fraction {
     pub frac_id : ScHash, 
     pub issuer  : ScAgentID, 
     pub name    : String, 
+    pub pure    : bool, 
     pub purpose : String, 
 }
 
@@ -151,6 +152,7 @@ impl Fraction {
             frac_id : hash_decode(&mut dec),
             issuer  : agent_id_decode(&mut dec),
             name    : string_decode(&mut dec),
+            pure    : bool_decode(&mut dec),
             purpose : string_decode(&mut dec),
         }
     }
@@ -162,6 +164,7 @@ impl Fraction {
 		hash_encode(&mut enc, &self.frac_id);
 		agent_id_encode(&mut enc, &self.issuer);
 		string_encode(&mut enc, &self.name);
+		bool_encode(&mut enc, self.pure);
 		string_encode(&mut enc, &self.purpose);
         enc.buf()
     }
@@ -378,6 +381,7 @@ pub struct Recyclate {
     pub frac_id : ScHash, 
     pub issuer  : ScAgentID, 
     pub name    : String, 
+    pub pure    : bool, 
     pub purpose : String, 
     pub recy_id : ScHash, 
 }
@@ -390,6 +394,7 @@ impl Recyclate {
             frac_id : hash_decode(&mut dec),
             issuer  : agent_id_decode(&mut dec),
             name    : string_decode(&mut dec),
+            pure    : bool_decode(&mut dec),
             purpose : string_decode(&mut dec),
             recy_id : hash_decode(&mut dec),
         }
@@ -401,6 +406,7 @@ impl Recyclate {
 		hash_encode(&mut enc, &self.frac_id);
 		agent_id_encode(&mut enc, &self.issuer);
 		string_encode(&mut enc, &self.name);
+		bool_encode(&mut enc, self.pure);
 		string_encode(&mut enc, &self.purpose);
 		hash_encode(&mut enc, &self.recy_id);
         enc.buf()
