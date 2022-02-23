@@ -205,16 +205,16 @@ type ImmutablePayoutProducerParams struct {
 	proxy wasmtypes.Proxy
 }
 
-func (s ImmutablePayoutProducerParams) PpID() wasmtypes.ScImmutableHash {
-	return wasmtypes.NewScImmutableHash(s.proxy.Root(ParamPpID))
+func (s ImmutablePayoutProducerParams) ProdID() wasmtypes.ScImmutableAgentID {
+	return wasmtypes.NewScImmutableAgentID(s.proxy.Root(ParamProdID))
 }
 
 type MutablePayoutProducerParams struct {
 	proxy wasmtypes.Proxy
 }
 
-func (s MutablePayoutProducerParams) PpID() wasmtypes.ScMutableHash {
-	return wasmtypes.NewScMutableHash(s.proxy.Root(ParamPpID))
+func (s MutablePayoutProducerParams) ProdID() wasmtypes.ScMutableAgentID {
+	return wasmtypes.NewScMutableAgentID(s.proxy.Root(ParamProdID))
 }
 
 type ImmutableSetDonationAddressParams struct {

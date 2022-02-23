@@ -298,7 +298,7 @@ func funcPayoutProducerThunk(ctx wasmlib.ScFuncContext) {
 			proxy: wasmlib.NewStateProxy(),
 		},
 	}
-	ctx.Require(f.Params.PpID().Exists(), "missing mandatory ppID")
+	ctx.Require(f.Params.ProdID().Exists(), "missing mandatory prodID")
 	funcPayoutProducer(ctx, f)
 	ctx.Log("scauri.funcPayoutProducer ok")
 }

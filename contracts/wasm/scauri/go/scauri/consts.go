@@ -27,6 +27,7 @@ const (
 	ParamPackageWeight   = "packageWeight"
 	ParamPackagesNumber  = "packagesNumber"
 	ParamPpID            = "ppID"
+	ParamProdID          = "prodID"
 	ParamProdPass        = "prodPass"
 	ParamPurpose         = "purpose"
 	ParamRecyID          = "recyID"
@@ -52,19 +53,21 @@ const (
 )
 
 const (
-	StateCompositions     = "compositions"
-	StateDonationAddress  = "donationAddress"
-	StateFracCompositions = "fracCompositions"
-	StateFractions        = "fractions"
-	StateOwner            = "owner"
-	StatePricePerMg       = "pricePerMg"
-	StateProductpasses    = "productpasses"
-	StateRecyCompositions = "recyCompositions"
-	StateRecyclates       = "recyclates"
-	StateRecyclers        = "recyclers"
-	StateShareRecycler    = "shareRecycler"
-	StateSorters          = "sorters"
-	StateTokenToDonate    = "tokenToDonate"
+	StateCompositions      = "compositions"
+	StateDonationAddress   = "donationAddress"
+	StateFracCompositions  = "fracCompositions"
+	StateFractions         = "fractions"
+	StateOwner             = "owner"
+	StatePricePerMg        = "pricePerMg"
+	StateProducersBalances = "producersBalances"
+	StateProductpasses     = "productpasses"
+	StateRecyCompositions  = "recyCompositions"
+	StateRecyclates        = "recyclates"
+	StateRecyclers         = "recyclers"
+	StateRecyclersBalances = "recyclersBalances"
+	StateShareRecycler     = "shareRecycler"
+	StateSorters           = "sorters"
+	StateTokenToDonate     = "tokenToDonate"
 )
 
 const (

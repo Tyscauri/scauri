@@ -264,7 +264,7 @@ fn func_payout_producer_thunk(ctx: &ScFuncContext) {
 		params: ImmutablePayoutProducerParams { proxy: params_proxy() },
 		state: MutablescauriState { proxy: state_proxy() },
 	};
-	ctx.require(f.params.pp_id().exists(), "missing mandatory ppID");
+	ctx.require(f.params.prod_id().exists(), "missing mandatory prodID");
 	func_payout_producer(ctx, &f);
 	ctx.log("scauri.funcPayoutProducer ok");
 }

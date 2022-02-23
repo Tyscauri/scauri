@@ -257,8 +257,8 @@ pub struct ImmutablePayoutProducerParams {
 }
 
 impl ImmutablePayoutProducerParams {
-    pub fn pp_id(&self) -> ScImmutableHash {
-		ScImmutableHash::new(self.proxy.root(PARAM_PP_ID))
+    pub fn prod_id(&self) -> ScImmutableAgentID {
+		ScImmutableAgentID::new(self.proxy.root(PARAM_PROD_ID))
 	}
 }
 
@@ -268,8 +268,8 @@ pub struct MutablePayoutProducerParams {
 }
 
 impl MutablePayoutProducerParams {
-    pub fn pp_id(&self) -> ScMutableHash {
-		ScMutableHash::new(self.proxy.root(PARAM_PP_ID))
+    pub fn prod_id(&self) -> ScMutableAgentID {
+		ScMutableAgentID::new(self.proxy.root(PARAM_PROD_ID))
 	}
 }
 

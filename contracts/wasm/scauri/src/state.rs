@@ -46,6 +46,17 @@ impl MapHashToImmutableFraction {
 }
 
 #[derive(Clone)]
+pub struct MapAgentIDToImmutableUint64 {
+	pub(crate) proxy: Proxy,
+}
+
+impl MapAgentIDToImmutableUint64 {
+    pub fn get_uint64(&self, key: &ScAgentID) -> ScImmutableUint64 {
+        ScImmutableUint64::new(self.proxy.key(&agent_id_to_bytes(key)))
+    }
+}
+
+#[derive(Clone)]
 pub struct MapHashToImmutableProductPass {
 	pub(crate) proxy: Proxy,
 }
@@ -123,6 +134,10 @@ impl ImmutablescauriState {
 		ScImmutableUint64::new(self.proxy.root(STATE_PRICE_PER_MG))
 	}
 
+    pub fn producers_balances(&self) -> MapAgentIDToImmutableUint64 {
+		MapAgentIDToImmutableUint64 { proxy: self.proxy.root(STATE_PRODUCERS_BALANCES) }
+	}
+
     pub fn productpasses(&self) -> MapHashToImmutableProductPass {
 		MapHashToImmutableProductPass { proxy: self.proxy.root(STATE_PRODUCTPASSES) }
 	}
@@ -137,6 +152,10 @@ impl ImmutablescauriState {
 
     pub fn recyclers(&self) -> ArrayOfImmutableAgentID {
 		ArrayOfImmutableAgentID { proxy: self.proxy.root(STATE_RECYCLERS) }
+	}
+
+    pub fn recyclers_balances(&self) -> MapAgentIDToImmutableUint64 {
+		MapAgentIDToImmutableUint64 { proxy: self.proxy.root(STATE_RECYCLERS_BALANCES) }
 	}
 
     pub fn share_recycler(&self) -> ScImmutableUint8 {
@@ -194,6 +213,21 @@ impl MapHashToMutableFraction {
 
     pub fn get_fraction(&self, key: &ScHash) -> MutableFraction {
         MutableFraction { proxy: self.proxy.key(&hash_to_bytes(key)) }
+    }
+}
+
+#[derive(Clone)]
+pub struct MapAgentIDToMutableUint64 {
+	pub(crate) proxy: Proxy,
+}
+
+impl MapAgentIDToMutableUint64 {
+    pub fn clear(&self) {
+        self.proxy.clear_map();
+    }
+
+    pub fn get_uint64(&self, key: &ScAgentID) -> ScMutableUint64 {
+        ScMutableUint64::new(self.proxy.key(&agent_id_to_bytes(key)))
     }
 }
 
@@ -299,6 +333,10 @@ impl MutablescauriState {
 		ScMutableUint64::new(self.proxy.root(STATE_PRICE_PER_MG))
 	}
 
+    pub fn producers_balances(&self) -> MapAgentIDToMutableUint64 {
+		MapAgentIDToMutableUint64 { proxy: self.proxy.root(STATE_PRODUCERS_BALANCES) }
+	}
+
     pub fn productpasses(&self) -> MapHashToMutableProductPass {
 		MapHashToMutableProductPass { proxy: self.proxy.root(STATE_PRODUCTPASSES) }
 	}
@@ -313,6 +351,10 @@ impl MutablescauriState {
 
     pub fn recyclers(&self) -> ArrayOfMutableAgentID {
 		ArrayOfMutableAgentID { proxy: self.proxy.root(STATE_RECYCLERS) }
+	}
+
+    pub fn recyclers_balances(&self) -> MapAgentIDToMutableUint64 {
+		MapAgentIDToMutableUint64 { proxy: self.proxy.root(STATE_RECYCLERS_BALANCES) }
 	}
 
     pub fn share_recycler(&self) -> ScMutableUint8 {

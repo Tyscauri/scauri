@@ -33,6 +33,14 @@ func (m MapHashToImmutableFraction) GetFraction(key wasmtypes.ScHash) ImmutableF
 	return ImmutableFraction{proxy: m.proxy.Key(wasmtypes.HashToBytes(key))}
 }
 
+type MapAgentIDToImmutableUint64 struct {
+	proxy wasmtypes.Proxy
+}
+
+func (m MapAgentIDToImmutableUint64) GetUint64(key wasmtypes.ScAgentID) wasmtypes.ScImmutableUint64 {
+	return wasmtypes.NewScImmutableUint64(m.proxy.Key(wasmtypes.AgentIDToBytes(key)))
+}
+
 type MapHashToImmutableProductPass struct {
 	proxy wasmtypes.Proxy
 }
@@ -97,6 +105,10 @@ func (s ImmutablescauriState) PricePerMg() wasmtypes.ScImmutableUint64 {
 	return wasmtypes.NewScImmutableUint64(s.proxy.Root(StatePricePerMg))
 }
 
+func (s ImmutablescauriState) ProducersBalances() MapAgentIDToImmutableUint64 {
+	return MapAgentIDToImmutableUint64{proxy: s.proxy.Root(StateProducersBalances)}
+}
+
 func (s ImmutablescauriState) Productpasses() MapHashToImmutableProductPass {
 	return MapHashToImmutableProductPass{proxy: s.proxy.Root(StateProductpasses)}
 }
@@ -111,6 +123,10 @@ func (s ImmutablescauriState) Recyclates() MapHashToImmutableRecyclate {
 
 func (s ImmutablescauriState) Recyclers() ArrayOfImmutableAgentID {
 	return ArrayOfImmutableAgentID{proxy: s.proxy.Root(StateRecyclers)}
+}
+
+func (s ImmutablescauriState) RecyclersBalances() MapAgentIDToImmutableUint64 {
+	return MapAgentIDToImmutableUint64{proxy: s.proxy.Root(StateRecyclersBalances)}
 }
 
 func (s ImmutablescauriState) ShareRecycler() wasmtypes.ScImmutableUint8 {
@@ -159,6 +175,18 @@ func (m MapHashToMutableFraction) Clear() {
 
 func (m MapHashToMutableFraction) GetFraction(key wasmtypes.ScHash) MutableFraction {
 	return MutableFraction{proxy: m.proxy.Key(wasmtypes.HashToBytes(key))}
+}
+
+type MapAgentIDToMutableUint64 struct {
+	proxy wasmtypes.Proxy
+}
+
+func (m MapAgentIDToMutableUint64) Clear() {
+	m.proxy.ClearMap()
+}
+
+func (m MapAgentIDToMutableUint64) GetUint64(key wasmtypes.ScAgentID) wasmtypes.ScMutableUint64 {
+	return wasmtypes.NewScMutableUint64(m.proxy.Key(wasmtypes.AgentIDToBytes(key)))
 }
 
 type MapHashToMutableProductPass struct {
@@ -249,6 +277,10 @@ func (s MutablescauriState) PricePerMg() wasmtypes.ScMutableUint64 {
 	return wasmtypes.NewScMutableUint64(s.proxy.Root(StatePricePerMg))
 }
 
+func (s MutablescauriState) ProducersBalances() MapAgentIDToMutableUint64 {
+	return MapAgentIDToMutableUint64{proxy: s.proxy.Root(StateProducersBalances)}
+}
+
 func (s MutablescauriState) Productpasses() MapHashToMutableProductPass {
 	return MapHashToMutableProductPass{proxy: s.proxy.Root(StateProductpasses)}
 }
@@ -263,6 +295,10 @@ func (s MutablescauriState) Recyclates() MapHashToMutableRecyclate {
 
 func (s MutablescauriState) Recyclers() ArrayOfMutableAgentID {
 	return ArrayOfMutableAgentID{proxy: s.proxy.Root(StateRecyclers)}
+}
+
+func (s MutablescauriState) RecyclersBalances() MapAgentIDToMutableUint64 {
+	return MapAgentIDToMutableUint64{proxy: s.proxy.Root(StateRecyclersBalances)}
 }
 
 func (s MutablescauriState) ShareRecycler() wasmtypes.ScMutableUint8 {

@@ -36,21 +36,32 @@ pub fn func_create_pp(ctx: &ScFuncContext, f: &CreatePPContext) {
     if pps.get_product_pass(&id).exists() {
            ctx.panic("id already exist");
     }
+
+    let packageWeight: u64 = f.params.package_weight().value();  // in miligramm
+    let packagesNumber: u64 = f.params.packages_number().value();
+    let amountPerCharge: u64 = ctx.incoming().balance(&ScColor::IOTA);
+    let amountPerPackage: u64 = amountPerCharge / packagesNumber;
+    let share_recycler: u64 = f.state.share_recycler().value() as u64;
+
+    let remainder = amountPerPackage * (100 -  share_recycler) % 100;
+
+    if remainder != 0 {
+        ctx.panic(&format!("Make the charge balance divisible by '{x}'.", x = (4 * packagesNumber).to_string()));   //Token can be dealt with only as int, no fractions possible. So for transparency we require matching amounts
+    }
+
+
     let did: String = "did:iota:".to_owned() + &id.to_string();
     let name: String = f.params.name().value();
     let issuer: ScAgentID = ctx.caller();
     let version: u8 = 1;               //TEST IMPLEMENTATION - ADD as Parameter in create func like: f.params.version().value();
     let purpose: String = f.params.purpose().value();
-    let packageWeight: u64 = f.params.package_weight().value();  // in miligramm
-    let packagesNumber: u64 = f.params.packages_number().value();
+
     let chargeWeight: u64 = packageWeight * packagesNumber; // in miligramm
-    let amountPerCharge: u64 = ctx.incoming().balance(&ScColor::IOTA);
-    let amountPerPackage: u64 = amountPerCharge / packagesNumber;
-    let rewardPerPackageProducer: u64 = amountPerPackage * (100 - f.state.share_recycler().value() as u64) / 100;
-    let rewardPerPackageRecycler: u64 = amountPerPackage * f.state.share_recycler().value() as u64 / 100;
+    let rewardPerPackageProducer: u64 = amountPerPackage * (100 -  share_recycler)/ 100;
+    let rewardPerPackageRecycler: u64 = amountPerPackage * share_recycler / 100;
     let packagesSorted: u64 = 0;
     let packagesWrongSorted: u64 = 0;
-    let packagesAlreadyPaid = 0;
+    let remainingAmountPerCharge: u64 = amountPerCharge;
     let activationDate: u64 = ctx.timestamp() / NANO_TIME_DIVIDER;
     let expiryDate: u64 = f.params.expiry_date().value() / NANO_TIME_DIVIDER;
 
@@ -66,7 +77,7 @@ pub fn func_create_pp(ctx: &ScFuncContext, f: &CreatePPContext) {
         packages_number: packagesNumber,
         packages_sorted: packagesSorted,
         packages_wrong_sorted: packagesWrongSorted,
-        packages_already_paid: packagesAlreadyPaid,
+        remaining_amount_per_charge: remainingAmountPerCharge,
         amount_per_charge: amountPerCharge,
         reward_per_package_producer: rewardPerPackageProducer,
         reward_per_package_recycler: rewardPerPackageRecycler,
@@ -108,7 +119,6 @@ pub fn func_create_pp(ctx: &ScFuncContext, f: &CreatePPContext) {
     if weightTester != ppNew.package_weight {
         ctx.panic(&format!("Composition of package does not add up to the package weight. Package weight stated is '{weightStated}', but sums up to '{testedWeight}'. Are you missing some materials?", weightStated = ppNew.package_weight, testedWeight = weightTester))
     }
-
 }
 
 pub fn view_get_pp(ctx: &ScViewContext, f: &GetPPContext) {
@@ -150,7 +160,6 @@ pub fn view_get_materials(ctx: &ScViewContext, f: &GetMaterialsContext) {
     for i in 0..comp.length() {
         composition_results_proxy.append_composition().set_value(&comp.get_composition(i).value());
     }
-    
 }
 
 
@@ -237,42 +246,50 @@ pub fn func_add_pp_to_fraction(ctx: &ScFuncContext, f: &AddPPToFractionContext) 
         }       
     }
 
-    //organize money distribution
-    //note that tracking packages which have been sorted to a fraction with the same purpose is basis for releasing funds
-    if pp.purpose == frac_proxy.value().purpose {
-        
-        //update pp.packages sorted
-        let mut tmp_pp = pp_proxy.value();
-        tmp_pp.packages_sorted +=1;
-        pp_proxy.set_value(&tmp_pp);
+    if pp.remaining_amount_per_charge > 0 {
+        //organize money distribution
+        //note that tracking packages which have been sorted to a fraction with the same purpose is basis for releasing funds
+        if pp.purpose == frac_proxy.value().purpose {
+            
+            //update pp.packages sorted
+            let mut tmp_pp = pp_proxy.value();
+            tmp_pp.packages_sorted +=1;
+            tmp_pp.remaining_amount_per_charge -= tmp_pp.reward_per_package_producer + tmp_pp.reward_per_package_recycler;
+            pp_proxy.set_value(&tmp_pp);
 
-        //update frac.amount
-        let mut tmp_frac = frac_proxy.value();
-        tmp_frac.amount += &pp.reward_per_package_recycler;
-        frac_proxy.set_value(&tmp_frac);
-    }
+            let prod_balance_proxy = f.state.producers_balances().get_uint64(&tmp_pp.issuer);
+            prod_balance_proxy.set_value(prod_balance_proxy.value() + &tmp_pp.reward_per_package_producer);
 
-    else {          //currently sets the whole fraction impure for the original application if one packaging added is not suitable for it
-        if frac_proxy.value().pure {
-
-            //update fraction.purpose
-            let mut tmp_fraction = frac_proxy.value();
-            tmp_fraction.pure = false;
-            frac_proxy.set_value(&tmp_fraction);  
+            //update frac.amount
+            let mut tmp_frac = frac_proxy.value();
+            tmp_frac.amount += &pp.reward_per_package_recycler;
+            frac_proxy.set_value(&tmp_frac);
         }
 
-        let donation_proxy = f.state.token_to_donate();
-        let new_amount_token: u64 = donation_proxy.value() + pp.reward_per_package_producer + pp.reward_per_package_recycler;
-        donation_proxy.set_value(new_amount_token);
-        ctx.log(&format!("SendMoney: '{x}'", x = new_amount_token));
+        else {          //currently sets the whole fraction impure for the original application if one packaging added is not suitable for it
+            if frac_proxy.value().pure {
 
+                //update fraction.purpose
+                let mut tmp_fraction = frac_proxy.value();
+                tmp_fraction.pure = false;
+                frac_proxy.set_value(&tmp_fraction);  
+            }
 
+            //update pp.packages_wrong sorted
+            let mut tmp_pp = pp_proxy.value();
+            tmp_pp.packages_wrong_sorted += 1;
+            tmp_pp.remaining_amount_per_charge -= tmp_pp.reward_per_package_producer + tmp_pp.reward_per_package_recycler;
+            pp_proxy.set_value(&tmp_pp);
 
-        //update pp.packages_wrong sorted
-        let mut tmp_pp = pp_proxy.value();
-        tmp_pp.packages_wrong_sorted += 1;
-        pp_proxy.set_value(&tmp_pp);
-    }    
+            //transfer money to donation address
+            let donation_proxy = f.state.token_to_donate();
+            let new_amount_token: u64 = donation_proxy.value() + pp.reward_per_package_producer + pp.reward_per_package_recycler;
+            donation_proxy.set_value(new_amount_token);
+        }   
+    }
+    else {
+        ctx.panic("All funds were released for this packaging");
+    }
 }
 
 pub fn func_create_recyclate(ctx: &ScFuncContext, f: &CreateRecyclateContext) {
@@ -321,6 +338,7 @@ pub fn func_create_recyclate(ctx: &ScFuncContext, f: &CreateRecyclateContext) {
     
     //manage payouts for the recycler
     if fraction.amount > 0 {
+
         let mut address: ScAgentID;
         
         //only if the fraction is usable for the same purpose as all included packagings the money goes to the recycler, otherwise to a non profit address
@@ -362,22 +380,23 @@ fn create_random_hash(ctx: &ScFuncContext) -> ScHash {
 
 pub fn func_payout_producer(ctx: &ScFuncContext, f: &PayoutProducerContext) {
 
+    let prodID = f.params.prod_id().value();
+    let prod_balance_proxy = f.state.producers_balances().get_uint64(&prodID);
+    let address: ScAgentID = prodID;
+    let payout = prod_balance_proxy.value();
 
-    let ppID = f.params.pp_id().value();
-    let pp_proxy = f.state.productpasses().get_product_pass(&ppID);
-    let pp_value = pp_proxy.value();
+    if payout > 0 {
 
-    let address: ScAgentID = pp_value.issuer;
-    let payout = pp_value.reward_per_package_producer * (&pp_value.packages_sorted - &pp_value.packages_already_paid);
+        prod_balance_proxy.set_value(0);
 
-    //update pp.packages_already_paid
-    let mut tmp_pp = pp_proxy.value();
-    tmp_pp.packages_already_paid = pp_value.packages_sorted;
-    pp_proxy.set_value(&tmp_pp);
+        let transfers: ScTransfers = ScTransfers::iotas(payout);
+        ctx.transfer_to_address(&address.address(), transfers);
+    }
 
+    else {
+        ctx.log("No money to distribute on this account");
+    }
 
-    let transfers: ScTransfers = ScTransfers::iotas(payout);
-    ctx.transfer_to_address(&address.address(), transfers);
 }
 
 pub fn func_delete_pp(ctx: &ScFuncContext, f: &DeletePPContext) {
@@ -385,31 +404,9 @@ pub fn func_delete_pp(ctx: &ScFuncContext, f: &DeletePPContext) {
     let ppID = f.params.pp_id().value();
     let pp_proxy: MutableProductPass = f.state.productpasses().get_product_pass(&ppID);
     let pp_value = pp_proxy.value();
-    let total_number_packages = pp_value.charge_weight / pp_value.package_weight;
+    let remainingAmountPerCharge = pp_value.remaining_amount_per_charge;
     
-    if pp_value.expiry_date > ctx.timestamp() / NANO_TIME_DIVIDER || total_number_packages == pp_value.packages_sorted + pp_value.packages_wrong_sorted {
-    
-        //payout remaing packages
-        if pp_value.packages_sorted > pp_value.packages_already_paid {
-            let address: ScAgentID = pp_value.issuer;
-            let payout = pp_value.reward_per_package_producer * (&pp_value.packages_sorted - &pp_value.packages_already_paid);
-            
-            //update pp.packages_already_paid
-            let mut tmp_pp = pp_proxy.value();
-            tmp_pp.packages_already_paid = pp_value.packages_sorted;
-            pp_proxy.set_value(&tmp_pp);
-            
-            let transfers: ScTransfers = ScTransfers::iotas(payout);
-            ctx.transfer_to_address(&address.address(), transfers);
-        }
-    
-        let updated_pp_value = pp_proxy.value();
-    
-        let leftover_token = updated_pp_value.amount_per_charge - 
-            (updated_pp_value.packages_sorted + updated_pp_value.packages_wrong_sorted) * (updated_pp_value.reward_per_package_producer + updated_pp_value.reward_per_package_recycler);
-    
-        let token_to_donate_proxy = f.state.token_to_donate();
-        token_to_donate_proxy.set_value(token_to_donate_proxy.value() + leftover_token);
+    if pp_value.expiry_date > ctx.timestamp() / NANO_TIME_DIVIDER || remainingAmountPerCharge == 0 {
         
         //remove pp
         f.state.productpasses().get_product_pass(&ppID).delete();
@@ -452,7 +449,6 @@ pub fn view_get_fraction(ctx: &ScViewContext, f: &GetFractionContext) {
     else {
     ctx.panic("Fraction ID not found");
     }
-
 }
 
 pub fn view_get_recyclate(ctx: &ScViewContext, f: &GetRecyclateContext) {

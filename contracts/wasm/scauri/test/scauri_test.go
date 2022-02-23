@@ -15,10 +15,10 @@ import (
 )
 
 //some test parameters
-var iotasAddedToCharge uint64 = 1000
+var iotasAddedToCharge uint64 = 1200
 var packagesPerCharge uint64 = 100
-
-const numPackageTypes uint64 = 10
+var numPackages uint64 = 15       //FRACTION: Add 15 packages of each type to a fraction
+const numPackageTypes uint64 = 10 //creates 10 package charges
 
 func setupTest(t *testing.T) *wasmsolo.SoloContext {
 	return wasmsolo.NewSoloContext(t, scauri.ScName, scauri.OnLoad)
@@ -133,8 +133,6 @@ func TestSuccessfullRecyclingCircle(t *testing.T) {
 	var fracID = createFraction.Results.FracID().Value()
 
 	//FRACTION: Add 15 packages of each type to a fraction
-	var numPackages uint64 = 15
-
 	for k := 0; k < len(keys); k++ {
 
 		for i := 0; i < int(numPackages); i++ {
@@ -199,13 +197,11 @@ func TestSuccessfullRecyclingCircle(t *testing.T) {
 	require.NoError(t, ctx.Err)
 
 	//FRACTION: Test payoffs producer
-	var expectedPayoffProducer uint64 = (iotasAddedToCharge/packagesPerCharge)*25/100*numPackageTypes*numPackages - uint64(len(keys))
+	var expectedPayoffProducer uint64 = (iotasAddedToCharge/packagesPerCharge)*25/100*numPackageTypes*numPackages - 1
 
-	for k := 0; k < len(keys); k++ {
-		payoutProducerX := scauri.ScFuncs.PayoutProducer(ctx.Sign(testProducer))
-		payoutProducerX.Params.PpID().SetValue(keys[k])
-		payoutProducerX.Func.TransferIotas(1).Call()
-	}
+	payoutProducer := scauri.ScFuncs.PayoutProducer(ctx.Sign(testProducer))
+	payoutProducer.Params.ProdID().SetValue(testProducer.ScAgentID())
+	payoutProducer.Func.TransferIotas(1).Call()
 
 	require.EqualValues(t, expectedPayoffProducer, testProducer.Balance()-preBalanceProducer)
 
@@ -357,9 +353,7 @@ func TestUnsuccessfullRecyclingCircle(t *testing.T) {
 	createFraction.Func.TransferIotas(1).Call()
 	var fracID = createFraction.Results.FracID().Value()
 
-	//FRACTION: Add 15 packages of each type to a fraction
-	var numPackages uint64 = 15
-
+	//FRACTION: Add 'numPackages' packages of each type to a fraction
 	for k := 0; k < len(keys); k++ {
 
 		for i := 0; i < int(numPackages); i++ {
@@ -444,14 +438,11 @@ func TestUnsuccessfullRecyclingCircle(t *testing.T) {
 	require.NoError(t, ctx.Err)
 
 	//FRACTION: Test correct payoff for producer
-	var expectedPayoffProducer uint64 = (iotasAddedToCharge/packagesPerCharge)*25/100*numPackageTypes*numPackages - uint64(len(keys))
+	var expectedPayoffProducer uint64 = (iotasAddedToCharge/packagesPerCharge)*25/100*numPackageTypes*numPackages - 1
 
-	for k := 0; k < len(keys); k++ {
-		payoutProducerX := scauri.ScFuncs.PayoutProducer(ctx.Sign(testProducer))
-		payoutProducerX.Params.PpID().SetValue(keys[k])
-		payoutProducerX.Func.TransferIotas(1).Call()
-	}
-
+	payoutProducer := scauri.ScFuncs.PayoutProducer(ctx.Sign(testProducer))
+	payoutProducer.Params.ProdID().SetValue(testProducer.ScAgentID())
+	payoutProducer.Func.TransferIotas(1).Call()
 	require.EqualValues(t, expectedPayoffProducer, testProducer.Balance()-preBalanceProducer)
 
 	//RECYCLATE
@@ -520,13 +511,69 @@ func TestUnsuccessfullRecyclingCircle(t *testing.T) {
 	payoutDonation := scauri.ScFuncs.PayoutDonation(ctx.Sign(testDonationReceiver))
 	payoutDonation.Func.TransferIotas(1).Call()
 
-	expectedPayoffDonation += (iotasAddedToCharge / packagesPerCharge) - 2 //should be -1
-	fmt.Println("expectedPayoff: " + fmt.Sprint(expectedPayoffDonation))
-	fmt.Println("RecyclerBalance: " + fmt.Sprint(testDonationReceiver.Balance()-donPreBalance))
+	expectedPayoffDonation += (iotasAddedToCharge / packagesPerCharge) - 1
 	require.EqualValues(t, expectedPayoffDonation, testDonationReceiver.Balance()-donPreBalance)
 
 	// delete PP-Charge - prohibt overuse of resources/ funds
 	// check rundungsfehler (look for "sendMoney"): maybe require divisible by 4
 	//test deletion
 	//test access
+}
+
+func TestResourceOverdrain(t *testing.T) {
+
+	ctx := setupTest(t)
+	owner := ctx.Creator()
+
+	var composition *scauri.Composition
+	composition = new(scauri.Composition)
+	composition.Material = "PP"
+	var ppMass uint64 = 8000 // mass of PP in mg
+	composition.Mass = ppMass
+
+	var testProducer = ctx.NewSoloAgent()
+
+	createPP := scauri.ScFuncs.CreatePP(ctx.Sign(testProducer)) //for funcs
+	createPP.Params.Name().SetValue("Chips")
+	createPP.Params.Purpose().SetValue("Food")
+	createPP.Params.ExpiryDate().SetValue(uint64(time.Now().Unix()))
+	createPP.Params.PackagesNumber().SetValue(packagesPerCharge)
+	createPP.Params.PackageWeight().SetValue(12000)
+	createPP.Params.Compositions().AppendComposition().SetValue(composition)
+	createPP.Func.TransferIotas(iotasAddedToCharge).Call()
+	var id = createPP.Results.Id().Value()
+	fmt.Println("id: " + fmt.Sprint(id))
+
+	var testSorter = ctx.NewSoloAgent()
+	addSorter := scauri.ScFuncs.AddSorter(ctx.Sign(owner))
+	addSorter.Params.SorterID().SetValue(testSorter.ScAgentID())
+	addSorter.Func.TransferIotas(1).Call()
+
+	createFraction := scauri.ScFuncs.CreateFraction(ctx.Sign(testSorter))
+	createFraction.Params.Purpose().SetValue("Cosmetics")
+	createFraction.Params.Name().SetValue("TestFraction")
+	createFraction.Func.TransferIotas(1).Call()
+	var fracID = createFraction.Results.FracID().Value()
+
+	//sort one more package than exists: should throw error
+	for i := 0; i < int(numPackages)+1; i++ {
+		addPPtoFractionX := scauri.ScFuncs.AddPPToFraction(ctx)
+		addPPtoFractionX.Params.PpID().SetValue(id)
+		addPPtoFractionX.Params.FracID().SetValue(fracID)
+		addPPtoFractionX.Func.TransferIotas(1).Call()
+	}
+	require.Error(t, ctx.Err)
+
+}
+
+//somebody else than the owner tries to manipulate the address for donations
+func UnauthorizedAccess(t *testing.T) {
+
+	ctx := setupTest(t)
+	var unauthorized = ctx.NewSoloAgent()
+
+	setDonationAddress := scauri.ScFuncs.SetDonationAddress(ctx.Sign(unauthorized))
+	setDonationAddress.Params.DonationAddress().SetValue(unauthorized.ScAgentID())
+	setDonationAddress.Func.TransferIotas(1).Call()
+	require.NoError(t, ctx.Err)
 }

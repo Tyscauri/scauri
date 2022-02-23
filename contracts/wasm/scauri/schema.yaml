@@ -14,8 +14,8 @@ structs:
     chargeWeight: Uint64
     packagesSorted: Uint64
     packagesWrongSorted: Uint64
-    packagesAlreadyPaid: Uint64
     amountPerCharge: Uint64
+    remainingAmountPerCharge: Uint64
     rewardPerPackageProducer: Uint64
     rewardPerPackageRecycler: Uint64
     activationDate: Uint64
@@ -63,6 +63,8 @@ state:
   tokenToDonate: Uint64
   sorters: AgentID[]
   recyclers: AgentID[]
+  producersBalances: map[AgentID]Uint64
+  recyclersBalances: map[AgentID]Uint64
 funcs:
   init:
     params:
@@ -107,7 +109,7 @@ funcs:
       recyID: Hash
   payoutProducer:
     params:
-      ppID: Hash
+      prodID: AgentID
   deletePP:
     params:
       ppID: Hash

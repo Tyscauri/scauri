@@ -219,11 +219,11 @@ pub struct ProductPass {
     pub issuer                      : ScAgentID,  //packaging producer
     pub name                        : String, 
     pub package_weight              : u64, 
-    pub packages_already_paid       : u64, 
     pub packages_number             : u64, 
     pub packages_sorted             : u64, 
     pub packages_wrong_sorted       : u64, 
     pub purpose                     : String,  //e.g. food, hygiene, others
+    pub remaining_amount_per_charge : u64, 
     pub reward_per_package_producer : u64, 
     pub reward_per_package_recycler : u64, 
     pub version                     : u8, 
@@ -242,11 +242,11 @@ impl ProductPass {
             issuer                      : agent_id_decode(&mut dec),
             name                        : string_decode(&mut dec),
             package_weight              : uint64_decode(&mut dec),
-            packages_already_paid       : uint64_decode(&mut dec),
             packages_number             : uint64_decode(&mut dec),
             packages_sorted             : uint64_decode(&mut dec),
             packages_wrong_sorted       : uint64_decode(&mut dec),
             purpose                     : string_decode(&mut dec),
+            remaining_amount_per_charge : uint64_decode(&mut dec),
             reward_per_package_producer : uint64_decode(&mut dec),
             reward_per_package_recycler : uint64_decode(&mut dec),
             version                     : uint8_decode(&mut dec),
@@ -264,11 +264,11 @@ impl ProductPass {
 		agent_id_encode(&mut enc, &self.issuer);
 		string_encode(&mut enc, &self.name);
 		uint64_encode(&mut enc, self.package_weight);
-		uint64_encode(&mut enc, self.packages_already_paid);
 		uint64_encode(&mut enc, self.packages_number);
 		uint64_encode(&mut enc, self.packages_sorted);
 		uint64_encode(&mut enc, self.packages_wrong_sorted);
 		string_encode(&mut enc, &self.purpose);
+		uint64_encode(&mut enc, self.remaining_amount_per_charge);
 		uint64_encode(&mut enc, self.reward_per_package_producer);
 		uint64_encode(&mut enc, self.reward_per_package_recycler);
 		uint8_encode(&mut enc, self.version);
