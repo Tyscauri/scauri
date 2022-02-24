@@ -37,6 +37,7 @@ const (
 
 const (
 	ResultCompositions    = "compositions"
+	ResultDonationAddress = "donationAddress"
 	ResultFracComposition = "fracComposition"
 	ResultFracID          = "fracID"
 	ResultFraction        = "fraction"
@@ -84,6 +85,7 @@ const (
 	FuncSetDonationAddress       = "setDonationAddress"
 	FuncSetOwner                 = "setOwner"
 	ViewGetAmountOfRequiredFunds = "getAmountOfRequiredFunds"
+	ViewGetDonationAddress       = "getDonationAddress"
 	ViewGetFraction              = "getFraction"
 	ViewGetMaterials             = "getMaterials"
 	ViewGetOwner                 = "getOwner"
@@ -106,6 +108,7 @@ const (
 	HFuncSetDonationAddress       = wasmtypes.ScHname(0x5b375a7d)
 	HFuncSetOwner                 = wasmtypes.ScHname(0x2a15fe7b)
 	HViewGetAmountOfRequiredFunds = wasmtypes.ScHname(0xbcbaf2d6)
+	HViewGetDonationAddress       = wasmtypes.ScHname(0x1314f3a7)
 	HViewGetFraction              = wasmtypes.ScHname(0xe1c332fa)
 	HViewGetMaterials             = wasmtypes.ScHname(0x1dca8ddb)
 	HViewGetOwner                 = wasmtypes.ScHname(0x137107a6)

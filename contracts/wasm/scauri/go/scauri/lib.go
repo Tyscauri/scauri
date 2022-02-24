@@ -25,6 +25,7 @@ var exportMap = wasmlib.ScExportMap{
     	FuncSetDonationAddress,
     	FuncSetOwner,
     	ViewGetAmountOfRequiredFunds,
+    	ViewGetDonationAddress,
     	ViewGetFraction,
     	ViewGetMaterials,
     	ViewGetOwner,
@@ -48,6 +49,7 @@ var exportMap = wasmlib.ScExportMap{
 	},
 	Views: []wasmlib.ScViewContextFunction{
     	viewGetAmountOfRequiredFundsThunk,
+    	viewGetDonationAddressThunk,
     	viewGetFractionThunk,
     	viewGetMaterialsThunk,
     	viewGetOwnerThunk,
@@ -377,6 +379,27 @@ func viewGetAmountOfRequiredFundsThunk(ctx wasmlib.ScViewContext) {
 	viewGetAmountOfRequiredFunds(ctx, f)
 	ctx.Results(results)
 	ctx.Log("scauri.viewGetAmountOfRequiredFunds ok")
+}
+
+type GetDonationAddressContext struct {
+	Results MutableGetDonationAddressResults
+	State   ImmutablescauriState
+}
+
+func viewGetDonationAddressThunk(ctx wasmlib.ScViewContext) {
+	ctx.Log("scauri.viewGetDonationAddress")
+	results := wasmlib.NewScDict()
+	f := &GetDonationAddressContext{
+		Results: MutableGetDonationAddressResults{
+			proxy: results.AsProxy(),
+		},
+		State: ImmutablescauriState{
+			proxy: wasmlib.NewStateProxy(),
+		},
+	}
+	viewGetDonationAddress(ctx, f)
+	ctx.Results(results)
+	ctx.Log("scauri.viewGetDonationAddress ok")
 }
 
 type GetFractionContext struct {

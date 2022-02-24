@@ -79,6 +79,11 @@ type GetAmountOfRequiredFundsCall struct {
 	Results ImmutableGetAmountOfRequiredFundsResults
 }
 
+type GetDonationAddressCall struct {
+	Func    *wasmlib.ScView
+	Results ImmutableGetDonationAddressResults
+}
+
 type GetFractionCall struct {
 	Func    *wasmlib.ScView
 	Params  MutableGetFractionParams
@@ -196,6 +201,12 @@ func (sc Funcs) SetOwner(ctx wasmlib.ScFuncCallContext) *SetOwnerCall {
 func (sc Funcs) GetAmountOfRequiredFunds(ctx wasmlib.ScViewCallContext) *GetAmountOfRequiredFundsCall {
 	f := &GetAmountOfRequiredFundsCall{Func: wasmlib.NewScView(ctx, HScName, HViewGetAmountOfRequiredFunds)}
 	f.Params.proxy = wasmlib.NewCallParamsProxy(f.Func)
+	wasmlib.NewCallResultsProxy(f.Func, &f.Results.proxy)
+	return f
+}
+
+func (sc Funcs) GetDonationAddress(ctx wasmlib.ScViewCallContext) *GetDonationAddressCall {
+	f := &GetDonationAddressCall{Func: wasmlib.NewScView(ctx, HScName, HViewGetDonationAddress)}
 	wasmlib.NewCallResultsProxy(f.Func, &f.Results.proxy)
 	return f
 }

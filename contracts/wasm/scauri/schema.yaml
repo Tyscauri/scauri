@@ -161,3 +161,6 @@ views:
       prodPass: ProductPass
     results: 
       tokenPerPackage: Uint64
+  getDonationAddress:
+    results:
+      donationAddress: AgentID

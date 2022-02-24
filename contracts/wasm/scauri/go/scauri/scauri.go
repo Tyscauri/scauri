@@ -68,3 +68,6 @@ func funcSetDonationAddress(ctx wasmlib.ScFuncContext, f *SetDonationAddressCont
 
 func funcPayoutDonation(ctx wasmlib.ScFuncContext, f *PayoutDonationContext) {
 }
+
+func viewGetDonationAddress(ctx wasmlib.ScViewContext, f *GetDonationAddressContext) {
+}

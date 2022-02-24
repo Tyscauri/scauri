@@ -80,6 +80,11 @@ pub struct GetAmountOfRequiredFundsCall {
 	pub results: ImmutableGetAmountOfRequiredFundsResults,
 }
 
+pub struct GetDonationAddressCall {
+	pub func: ScView,
+	pub results: ImmutableGetDonationAddressResults,
+}
+
 pub struct GetFractionCall {
 	pub func: ScView,
 	pub params: MutableGetFractionParams,
@@ -241,6 +246,15 @@ impl ScFuncs {
             results: ImmutableGetAmountOfRequiredFundsResults { proxy: Proxy::nil() },
         };
         ScView::link_params(&mut f.params.proxy, &f.func);
+        ScView::link_results(&mut f.results.proxy, &f.func);
+        f
+    }
+
+    pub fn get_donation_address(_ctx: &dyn ScViewCallContext) -> GetDonationAddressCall {
+        let mut f = GetDonationAddressCall {
+            func: ScView::new(HSC_NAME, HVIEW_GET_DONATION_ADDRESS),
+            results: ImmutableGetDonationAddressResults { proxy: Proxy::nil() },
+        };
         ScView::link_results(&mut f.results.proxy, &f.func);
         f
     }

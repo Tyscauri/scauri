@@ -490,3 +490,9 @@ pub fn func_payout_donation(ctx: &ScFuncContext, f: &PayoutDonationContext) {
         token_to_donate_proxy.set_value(0);
     }
 }
+
+pub fn view_get_donation_address(ctx: &ScViewContext, f: &GetDonationAddressContext) {
+
+    let address = f.state.donation_address().value();
+    f.results.donation_address().set_value(&address);
+}

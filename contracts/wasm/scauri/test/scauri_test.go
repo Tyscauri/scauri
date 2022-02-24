@@ -566,14 +566,27 @@ func TestResourceOverdrain(t *testing.T) {
 
 }
 
-//somebody else than the owner tries to manipulate the address for donations
 func UnauthorizedAccess(t *testing.T) {
+	//somebody else than the owner tries to manipulate the address for donations
 
 	ctx := setupTest(t)
+	var owner = ctx.Creator()
+	var plantTreesNGO = ctx.NewSoloAgent()
 	var unauthorized = ctx.NewSoloAgent()
 
-	setDonationAddress := scauri.ScFuncs.SetDonationAddress(ctx.Sign(unauthorized))
-	setDonationAddress.Params.DonationAddress().SetValue(unauthorized.ScAgentID())
-	setDonationAddress.Func.TransferIotas(1).Call()
+	setDonationAddressValid := scauri.ScFuncs.SetDonationAddress(ctx.Sign(owner))
+	setDonationAddressValid.Params.DonationAddress().SetValue(plantTreesNGO.ScAgentID())
+	setDonationAddressValid.Func.TransferIotas(1).Call()
 	require.NoError(t, ctx.Err)
+
+	setDonationAddressInvalid := scauri.ScFuncs.SetDonationAddress(ctx.Sign(unauthorized))
+	setDonationAddressInvalid.Params.DonationAddress().SetValue(unauthorized.ScAgentID())
+	setDonationAddressInvalid.Func.TransferIotas(1).Call()
+	require.NoError(t, ctx.Err)
+
+	getDonationAddress := scauri.ScFuncs.GetDonationAddress(ctx)
+	getDonationAddress.Func.Call()
+	require.EqualValues(t, getDonationAddress.Results.DonationAddress, plantTreesNGO.ScAgentID())
+	require.NoError(t, ctx.Err)
+
 }

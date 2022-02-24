@@ -43,6 +43,7 @@ const EXPORT_MAP: ScExportMap = ScExportMap {
     	FUNC_SET_DONATION_ADDRESS,
     	FUNC_SET_OWNER,
     	VIEW_GET_AMOUNT_OF_REQUIRED_FUNDS,
+    	VIEW_GET_DONATION_ADDRESS,
     	VIEW_GET_FRACTION,
     	VIEW_GET_MATERIALS,
     	VIEW_GET_OWNER,
@@ -66,6 +67,7 @@ const EXPORT_MAP: ScExportMap = ScExportMap {
 	],
     views: &[
     	view_get_amount_of_required_funds_thunk,
+    	view_get_donation_address_thunk,
     	view_get_fraction_thunk,
     	view_get_materials_thunk,
     	view_get_owner_thunk,
@@ -328,6 +330,22 @@ fn view_get_amount_of_required_funds_thunk(ctx: &ScViewContext) {
 	view_get_amount_of_required_funds(ctx, &f);
 	ctx.results(&f.results.proxy.kv_store);
 	ctx.log("scauri.viewGetAmountOfRequiredFunds ok");
+}
+
+pub struct GetDonationAddressContext {
+	results: MutableGetDonationAddressResults,
+	state: ImmutablescauriState,
+}
+
+fn view_get_donation_address_thunk(ctx: &ScViewContext) {
+	ctx.log("scauri.viewGetDonationAddress");
+	let f = GetDonationAddressContext {
+		results: MutableGetDonationAddressResults { proxy: results_proxy() },
+		state: ImmutablescauriState { proxy: state_proxy() },
+	};
+	view_get_donation_address(ctx, &f);
+	ctx.results(&f.results.proxy.kv_store);
+	ctx.log("scauri.viewGetDonationAddress ok");
 }
 
 pub struct GetFractionContext {

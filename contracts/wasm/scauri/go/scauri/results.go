@@ -121,6 +121,22 @@ func (s MutableGetAmountOfRequiredFundsResults) TokenRequired() wasmtypes.ScMuta
 	return wasmtypes.NewScMutableUint64(s.proxy.Root(ResultTokenRequired))
 }
 
+type ImmutableGetDonationAddressResults struct {
+	proxy wasmtypes.Proxy
+}
+
+func (s ImmutableGetDonationAddressResults) DonationAddress() wasmtypes.ScImmutableAgentID {
+	return wasmtypes.NewScImmutableAgentID(s.proxy.Root(ResultDonationAddress))
+}
+
+type MutableGetDonationAddressResults struct {
+	proxy wasmtypes.Proxy
+}
+
+func (s MutableGetDonationAddressResults) DonationAddress() wasmtypes.ScMutableAgentID {
+	return wasmtypes.NewScMutableAgentID(s.proxy.Root(ResultDonationAddress))
+}
+
 type ImmutableGetFractionResults struct {
 	proxy wasmtypes.Proxy
 }

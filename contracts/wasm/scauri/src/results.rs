@@ -160,6 +160,28 @@ impl MutableGetAmountOfRequiredFundsResults {
 }
 
 #[derive(Clone)]
+pub struct ImmutableGetDonationAddressResults {
+	pub(crate) proxy: Proxy,
+}
+
+impl ImmutableGetDonationAddressResults {
+    pub fn donation_address(&self) -> ScImmutableAgentID {
+		ScImmutableAgentID::new(self.proxy.root(RESULT_DONATION_ADDRESS))
+	}
+}
+
+#[derive(Clone)]
+pub struct MutableGetDonationAddressResults {
+	pub(crate) proxy: Proxy,
+}
+
+impl MutableGetDonationAddressResults {
+    pub fn donation_address(&self) -> ScMutableAgentID {
+		ScMutableAgentID::new(self.proxy.root(RESULT_DONATION_ADDRESS))
+	}
+}
+
+#[derive(Clone)]
 pub struct ImmutableGetFractionResults {
 	pub(crate) proxy: Proxy,
 }
