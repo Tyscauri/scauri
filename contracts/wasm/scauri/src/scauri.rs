@@ -246,13 +246,17 @@ pub fn func_add_pp_to_fraction(ctx: &ScFuncContext, f: &AddPPToFractionContext) 
         }       
     }
 
-    if pp.remaining_amount_per_charge > 0 {
+    ctx.log(&format!("pp.remainingAmountx: '{x}'", x = pp.remaining_amount_per_charge));
+    ctx.log(&format!("pp.rewardprod: '{x}'", x = pp.reward_per_package_producer));
+    ctx.log(&format!("pp.rewardrecy: '{x}'", x = pp.reward_per_package_recycler));
+
+    let mut tmp_pp = pp_proxy.value();
+    if pp.remaining_amount_per_charge >= tmp_pp.reward_per_package_producer + tmp_pp.reward_per_package_recycler {
         //organize money distribution
         //note that tracking packages which have been sorted to a fraction with the same purpose is basis for releasing funds
         if pp.purpose == frac_proxy.value().purpose {
             
             //update pp.packages sorted
-            let mut tmp_pp = pp_proxy.value();
             tmp_pp.packages_sorted +=1;
             tmp_pp.remaining_amount_per_charge -= tmp_pp.reward_per_package_producer + tmp_pp.reward_per_package_recycler;
             pp_proxy.set_value(&tmp_pp);
@@ -276,7 +280,6 @@ pub fn func_add_pp_to_fraction(ctx: &ScFuncContext, f: &AddPPToFractionContext) 
             }
 
             //update pp.packages_wrong sorted
-            let mut tmp_pp = pp_proxy.value();
             tmp_pp.packages_wrong_sorted += 1;
             tmp_pp.remaining_amount_per_charge -= tmp_pp.reward_per_package_producer + tmp_pp.reward_per_package_recycler;
             pp_proxy.set_value(&tmp_pp);
@@ -285,9 +288,19 @@ pub fn func_add_pp_to_fraction(ctx: &ScFuncContext, f: &AddPPToFractionContext) 
             let donation_proxy = f.state.token_to_donate();
             let new_amount_token: u64 = donation_proxy.value() + pp.reward_per_package_producer + pp.reward_per_package_recycler;
             donation_proxy.set_value(new_amount_token);
+
         }   
     }
     else {
+        if tmp_pp.remaining_amount_per_charge > 0 {
+            let donation_proxy = f.state.token_to_donate();
+            let new_amount_token: u64 = donation_proxy.value() + tmp_pp.remaining_amount_per_charge;
+            donation_proxy.set_value(new_amount_token);
+
+            tmp_pp.remaining_amount_per_charge = 0;
+            pp_proxy.set_value(&tmp_pp);
+
+        }
         ctx.panic("All funds were released for this packaging");
     }
 }

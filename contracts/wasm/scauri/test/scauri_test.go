@@ -258,8 +258,6 @@ func TestSuccessfullRecyclingCircle(t *testing.T) {
 
 	//RECYCLATE: Test payoff recyclate
 	var expectedPayoffRecycler uint64 = expectedFraction.Amount
-	fmt.Println("expectedPayoff: " + fmt.Sprint(expectedPayoffRecycler))
-	fmt.Println("RecyclerBalance: " + fmt.Sprint(testRecycler.Balance()-preBalanceRecycler))
 	require.EqualValues(t, expectedPayoffRecycler, testRecycler.Balance()-preBalanceRecycler)
 
 	//test access
@@ -537,8 +535,8 @@ func TestResourceOverdrain(t *testing.T) {
 	createPP.Params.Name().SetValue("Chips")
 	createPP.Params.Purpose().SetValue("Food")
 	createPP.Params.ExpiryDate().SetValue(uint64(time.Now().Unix()))
-	createPP.Params.PackagesNumber().SetValue(packagesPerCharge)
-	createPP.Params.PackageWeight().SetValue(12000)
+	createPP.Params.PackagesNumber().SetValue(numPackages)
+	createPP.Params.PackageWeight().SetValue(8000)
 	createPP.Params.Compositions().AppendComposition().SetValue(composition)
 	createPP.Func.TransferIotas(iotasAddedToCharge).Call()
 	var id = createPP.Results.Id().Value()
@@ -554,10 +552,11 @@ func TestResourceOverdrain(t *testing.T) {
 	createFraction.Params.Name().SetValue("TestFraction")
 	createFraction.Func.TransferIotas(1).Call()
 	var fracID = createFraction.Results.FracID().Value()
+	require.NoError(t, ctx.Err)
 
 	//sort one more package than exists: should throw error
-	for i := 0; i < int(numPackages)+1; i++ {
-		addPPtoFractionX := scauri.ScFuncs.AddPPToFraction(ctx)
+	for i := 0; i < int(numPackages)+2; i++ {
+		addPPtoFractionX := scauri.ScFuncs.AddPPToFraction(ctx.Sign(testSorter))
 		addPPtoFractionX.Params.PpID().SetValue(id)
 		addPPtoFractionX.Params.FracID().SetValue(fracID)
 		addPPtoFractionX.Func.TransferIotas(1).Call()
@@ -577,16 +576,15 @@ func UnauthorizedAccess(t *testing.T) {
 	setDonationAddressValid := scauri.ScFuncs.SetDonationAddress(ctx.Sign(owner))
 	setDonationAddressValid.Params.DonationAddress().SetValue(plantTreesNGO.ScAgentID())
 	setDonationAddressValid.Func.TransferIotas(1).Call()
-	require.NoError(t, ctx.Err)
 
 	setDonationAddressInvalid := scauri.ScFuncs.SetDonationAddress(ctx.Sign(unauthorized))
 	setDonationAddressInvalid.Params.DonationAddress().SetValue(unauthorized.ScAgentID())
 	setDonationAddressInvalid.Func.TransferIotas(1).Call()
-	require.NoError(t, ctx.Err)
 
 	getDonationAddress := scauri.ScFuncs.GetDonationAddress(ctx)
 	getDonationAddress.Func.Call()
 	require.EqualValues(t, getDonationAddress.Results.DonationAddress, plantTreesNGO.ScAgentID())
 	require.NoError(t, ctx.Err)
+	fmt.Println("chaaaaallo")
 
 }
