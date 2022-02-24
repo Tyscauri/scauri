@@ -512,9 +512,6 @@ func TestUnsuccessfullRecyclingCircle(t *testing.T) {
 	expectedPayoffDonation += (iotasAddedToCharge / packagesPerCharge) - 1
 	require.EqualValues(t, expectedPayoffDonation, testDonationReceiver.Balance()-donPreBalance)
 
-	// delete PP-Charge - prohibt overuse of resources/ funds
-	// check rundungsfehler (look for "sendMoney"): maybe require divisible by 4
-	//test deletion
 	//test access
 }
 
@@ -554,18 +551,28 @@ func TestResourceOverdrain(t *testing.T) {
 	var fracID = createFraction.Results.FracID().Value()
 	require.NoError(t, ctx.Err)
 
-	//sort one more package than exists: should throw error
-	for i := 0; i < int(numPackages)+2; i++ {
+	//sort all existing packages
+
+	for i := 0; i < int(numPackages); i++ {
 		addPPtoFractionX := scauri.ScFuncs.AddPPToFraction(ctx.Sign(testSorter))
 		addPPtoFractionX.Params.PpID().SetValue(id)
 		addPPtoFractionX.Params.FracID().SetValue(fracID)
 		addPPtoFractionX.Func.TransferIotas(1).Call()
+		require.NoError(t, ctx.Err)
 	}
-	require.Error(t, ctx.Err)
+
+	//try to sort 2 packages more than exist
+	for i := 0; i < 2; i++ {
+		addPPtoFractionX := scauri.ScFuncs.AddPPToFraction(ctx.Sign(testSorter))
+		addPPtoFractionX.Params.PpID().SetValue(id)
+		addPPtoFractionX.Params.FracID().SetValue(fracID)
+		addPPtoFractionX.Func.TransferIotas(1).Call()
+		require.Error(t, ctx.Err)
+	}
 
 }
 
-func UnauthorizedAccess(t *testing.T) {
+func TestUnauthorizedAccess(t *testing.T) {
 	//somebody else than the owner tries to manipulate the address for donations
 
 	ctx := setupTest(t)
@@ -583,8 +590,7 @@ func UnauthorizedAccess(t *testing.T) {
 
 	getDonationAddress := scauri.ScFuncs.GetDonationAddress(ctx)
 	getDonationAddress.Func.Call()
-	require.EqualValues(t, getDonationAddress.Results.DonationAddress, plantTreesNGO.ScAgentID())
+	require.EqualValues(t, getDonationAddress.Results.DonationAddress().Value(), plantTreesNGO.ScAgentID())
 	require.NoError(t, ctx.Err)
-	fmt.Println("chaaaaallo")
 
 }
